@@ -1,0 +1,894 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Farol · Painel Unificado</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Inter:wght@400;500;600&display=swap');
+
+:root{
+  --bg:#F4F2EE;
+  --card:#FFFFFF;
+  --ink:#1E2230;
+  --muted:#6A7180;
+  --line:#E7E3DB;
+  --accent:#4F46E5;
+  --accent-soft:#ECEBFD;
+  --shadow:0 1px 2px rgba(30,34,48,.04), 0 8px 24px rgba(30,34,48,.06);
+  --shadow-sm:0 1px 2px rgba(30,34,48,.05);
+  --radius:18px;
+
+  /* cores por área */
+  --c-financeiro:#7C6FF0;  --b-financeiro:#EEEBFB;
+  --c-comercial:#E8588E;   --b-comercial:#FBE7F0;
+  --c-marketing:#EF8E3A;   --b-marketing:#FBEBDA;
+  --c-produto:#3597D6;     --b-produto:#E0EFFA;
+  --c-escola:#E36A37;      --b-escola:#FAE6DB;
+  --c-suporte:#2CA59C;     --b-suporte:#DDF1EF;
+  --c-dp:#CD9F34;          --b-dp:#F8EFD5;
+  --c-admin:#BC5C99;       --b-admin:#F7E6F1;
+  --c-processo:#4FA268;    --b-processo:#E2F1E6;
+  --c-visao:#A98C57;       --b-visao:#F1EADC;
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  font-family:'Inter',system-ui,sans-serif;
+  background:var(--bg);
+  color:var(--ink);
+  line-height:1.45;
+  -webkit-font-smoothing:antialiased;
+}
+h1,h2,h3,h4,.display{font-family:'Plus Jakarta Sans',sans-serif}
+.scroll-mt{scroll-margin-top:132px}
+
+/* ---------- TOP NAV ---------- */
+.topbar{
+  position:sticky;top:0;z-index:50;
+  background:rgba(244,242,238,.82);
+  backdrop-filter:saturate(140%) blur(12px);
+  border-bottom:1px solid var(--line);
+}
+.topbar-inner{
+  max-width:1240px;margin:0 auto;padding:14px 24px;
+  display:flex;align-items:center;gap:20px;
+}
+.brand{display:flex;align-items:center;gap:11px;flex-shrink:0}
+.beacon{
+  width:34px;height:34px;border-radius:11px;flex-shrink:0;
+  background:linear-gradient(150deg,#FFD27A,#F0913C 55%,#E8588E);
+  position:relative;box-shadow:0 6px 16px rgba(239,142,58,.35);
+}
+.beacon::after{
+  content:"";position:absolute;inset:0;border-radius:11px;
+  background:radial-gradient(circle at 50% 32%,rgba(255,255,255,.9),transparent 42%);
+}
+.brand b{font-family:'Plus Jakarta Sans';font-weight:800;font-size:18px;letter-spacing:-.3px}
+.brand span{display:block;font-size:11px;color:var(--muted);font-weight:500;margin-top:-2px}
+
+.nav{
+  display:flex;gap:4px;overflow-x:auto;flex:1;padding:2px;
+  scrollbar-width:none;
+}
+.nav::-webkit-scrollbar{display:none}
+.nav a{
+  flex-shrink:0;text-decoration:none;color:var(--muted);
+  font-size:13px;font-weight:600;padding:7px 12px;border-radius:10px;
+  white-space:nowrap;transition:.18s;display:flex;align-items:center;gap:7px;
+}
+.nav a .dot{width:7px;height:7px;border-radius:50%;background:currentColor;opacity:.5}
+.nav a:hover{background:#fff;color:var(--ink)}
+.nav a.active{background:#fff;color:var(--ink);box-shadow:var(--shadow-sm)}
+.nav a.active .dot{opacity:1}
+
+/* ---------- TOGGLE ---------- */
+.toggle-wrap{flex-shrink:0;display:flex;align-items:center;gap:10px}
+.toggle-label{font-size:11px;color:var(--muted);font-weight:600;text-align:right;line-height:1.25}
+.seg{
+  display:inline-flex;background:#EAE6DE;padding:4px;border-radius:12px;position:relative;
+  box-shadow:inset 0 1px 2px rgba(30,34,48,.06);
+}
+.seg button{
+  border:0;background:transparent;cursor:pointer;font-family:'Plus Jakarta Sans';
+  font-weight:700;font-size:13px;color:var(--muted);padding:7px 15px;border-radius:9px;
+  position:relative;z-index:2;transition:color .2s;display:flex;align-items:center;gap:6px;
+}
+.seg button.on{color:#fff}
+.seg .glider{
+  position:absolute;top:4px;bottom:4px;border-radius:9px;z-index:1;
+  transition:transform .28s cubic-bezier(.5,1.4,.5,1),background .28s,width .28s;
+  box-shadow:0 4px 10px rgba(0,0,0,.16);
+}
+
+/* ---------- VIEW BANNER ---------- */
+.viewbanner{
+  max-width:1240px;margin:18px auto 0;padding:0 24px;
+}
+.viewbanner-in{
+  border-radius:14px;padding:13px 18px;display:flex;align-items:center;gap:13px;
+  font-size:13.5px;font-weight:500;transition:.3s;border:1px solid;
+}
+.viewbanner-in .tag{
+  font-family:'Plus Jakarta Sans';font-weight:800;font-size:12px;
+  padding:4px 10px;border-radius:999px;color:#fff;flex-shrink:0;
+}
+.viewbanner-in b{font-weight:700}
+
+/* ---------- LAYOUT ---------- */
+.wrap{max-width:1240px;margin:0 auto;padding:8px 24px 80px}
+.section{margin-top:42px}
+.section-head{
+  display:flex;align-items:center;gap:14px;margin-bottom:20px;
+  padding:16px 20px;border-radius:16px;position:relative;overflow:hidden;
+}
+.section-head::before{
+  content:"";position:absolute;left:0;top:0;bottom:0;width:6px;
+}
+.sh-icon{
+  width:42px;height:42px;border-radius:12px;display:grid;place-items:center;
+  flex-shrink:0;color:#fff;font-size:20px;
+}
+.sh-num{font-family:'Plus Jakarta Sans';font-weight:800;font-size:13px;opacity:.55;letter-spacing:.5px}
+.section-head h2{font-size:21px;font-weight:800;letter-spacing:-.4px;line-height:1.1}
+.section-head .sh-sub{font-size:12.5px;color:var(--muted);font-weight:500;margin-top:1px}
+.access-pill{
+  margin-left:auto;font-family:'Plus Jakarta Sans';font-weight:700;font-size:11px;
+  padding:6px 12px;border-radius:999px;display:flex;align-items:center;gap:6px;flex-shrink:0;
+}
+.access-geral{background:#E2F1E6;color:#2F7D49}
+.access-restrito{background:#F0EDF7;color:#5B4FC2}
+
+/* grupos internos (PJ/PF, blocos de acesso) */
+.block{margin-bottom:14px}
+.block-label{
+  display:flex;align-items:center;gap:9px;margin:22px 4px 12px;
+  font-family:'Plus Jakarta Sans';font-weight:700;font-size:13px;color:var(--muted);
+  text-transform:uppercase;letter-spacing:.6px;
+}
+.block-label .ln{height:1px;background:var(--line);flex:1}
+.minitag{
+  font-size:10px;font-weight:700;padding:3px 8px;border-radius:6px;letter-spacing:.3px;
+}
+.mt-geral{background:#E2F1E6;color:#2F7D49}
+.mt-restrito{background:#F0EDF7;color:#5B4FC2}
+
+/* grid */
+.grid{display:grid;gap:14px}
+.g2{grid-template-columns:repeat(2,1fr)}
+.g3{grid-template-columns:repeat(3,1fr)}
+.g4{grid-template-columns:repeat(4,1fr)}
+.span2{grid-column:span 2}
+
+/* cards */
+.card{
+  background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+  padding:18px;box-shadow:var(--shadow-sm);
+}
+.kpi .k-label{font-size:12.5px;color:var(--muted);font-weight:600;display:flex;align-items:center;gap:7px}
+.kpi .k-val{font-family:'Plus Jakarta Sans';font-weight:800;font-size:27px;letter-spacing:-.6px;margin-top:8px;line-height:1}
+.kpi .k-sub{font-size:12px;color:var(--muted);margin-top:8px;display:flex;align-items:center;gap:6px}
+.trend{font-weight:700;font-size:12px;padding:2px 7px;border-radius:6px}
+.up{background:#E4F4E9;color:#2F7D49}
+.down{background:#FBE7E7;color:#C0392B}
+.flat{background:#EFEDE7;color:#6A7180}
+.k-ico{width:30px;height:30px;border-radius:9px;display:grid;place-items:center;font-size:15px}
+
+.card h3{font-size:15px;font-weight:700;margin-bottom:3px;letter-spacing:-.2px}
+.card .csub{font-size:12px;color:var(--muted);margin-bottom:14px}
+.chart-box{position:relative;height:230px}
+.chart-tall{height:280px}
+
+/* progress rows */
+.prow{display:flex;align-items:center;gap:12px;padding:9px 0;border-top:1px solid var(--line)}
+.prow:first-of-type{border-top:0}
+.prow .pname{font-size:13px;font-weight:600;min-width:120px;flex-shrink:0}
+.prow .ptrack{flex:1;height:9px;background:#EEEBE4;border-radius:99px;overflow:hidden}
+.prow .pfill{height:100%;border-radius:99px}
+.prow .pval{font-family:'Plus Jakarta Sans';font-weight:700;font-size:13px;min-width:44px;text-align:right}
+
+/* table */
+.tbl{width:100%;border-collapse:collapse;font-size:13px}
+.tbl th{
+  text-align:left;font-weight:700;color:var(--muted);font-size:11px;
+  text-transform:uppercase;letter-spacing:.5px;padding:0 12px 10px;
+}
+.tbl td{padding:11px 12px;border-top:1px solid var(--line)}
+.tbl tr:hover td{background:#FAF9F6}
+.tbl .num{font-family:'Plus Jakarta Sans';font-weight:700;text-align:right}
+.status{font-size:11px;font-weight:700;padding:4px 9px;border-radius:7px;white-space:nowrap}
+.s-andamento{background:#E0EFFA;color:#1E6FA8}
+.s-negociando{background:#FBEBDA;color:#B5641A}
+.s-fechando{background:#E4F4E9;color:#2F7D49}
+.s-proposta{background:#F0EDF7;color:#5B4FC2}
+.statusbar{height:6px;border-radius:99px;background:#EEEBE4;overflow:hidden;margin-top:5px;width:90px}
+.statusbar i{display:block;height:100%;border-radius:99px}
+.avail{display:inline-block;width:9px;height:9px;border-radius:50%}
+.av-ok{background:#3FB169}.av-low{background:#E8A13A}.av-out{background:#D85B5B}
+
+.chip{
+  display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;
+  background:#F4F2EC;border:1px solid var(--line);padding:6px 11px;border-radius:9px;margin:3px 4px 0 0;
+}
+.doc-item{
+  display:flex;align-items:center;gap:12px;padding:12px 0;border-top:1px solid var(--line);
+}
+.doc-item:first-child{border-top:0}
+.doc-item .di-ico{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;flex-shrink:0;font-size:16px}
+.doc-item .di-t{font-size:13.5px;font-weight:600}
+.doc-item .di-s{font-size:11.5px;color:var(--muted)}
+.doc-item .di-go{margin-left:auto;font-size:12px;font-weight:700;color:var(--accent);text-decoration:none;flex-shrink:0}
+
+.birthday{display:flex;align-items:center;gap:11px;padding:10px 0;border-top:1px solid var(--line)}
+.birthday:first-child{border-top:0}
+.ava{width:36px;height:36px;border-radius:50%;display:grid;place-items:center;color:#fff;font-weight:700;font-family:'Plus Jakarta Sans';font-size:13px;flex-shrink:0}
+.bd-date{margin-left:auto;font-size:12px;font-weight:700;color:var(--muted)}
+
+.empty-note{
+  text-align:center;color:var(--muted);font-size:13px;padding:48px 20px;
+  background:#fff;border:1px dashed var(--line);border-radius:16px;margin-top:8px;
+}
+[hidden]{display:none !important}
+
+footer{
+  max-width:1240px;margin:0 auto;padding:30px 24px 50px;color:var(--muted);font-size:12px;
+  display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;border-top:1px solid var(--line);
+}
+
+/* mobile */
+@media(max-width:880px){
+  .topbar-inner{flex-wrap:wrap;gap:12px}
+  .nav{order:3;width:100%}
+  .toggle-wrap .toggle-label{display:none}
+  .g4{grid-template-columns:repeat(2,1fr)}
+  .g3{grid-template-columns:1fr}
+  .g2{grid-template-columns:1fr}
+  .span2{grid-column:span 1}
+  .scroll-mt{scroll-margin-top:180px}
+  .access-pill{display:none}
+  .prow .pname{min-width:90px}
+}
+</style>
+</head>
+<body>
+
+<!-- ===================== TOP NAV ===================== -->
+<header class="topbar">
+  <div class="topbar-inner">
+    <div class="brand">
+      <div class="beacon"></div>
+      <div><b>Farol</b><span>Painel Unificado</span></div>
+    </div>
+    <nav class="nav" id="nav"></nav>
+    <div class="toggle-wrap">
+      <div class="toggle-label">Você está vendo<br>como:</div>
+      <div class="seg" id="seg">
+        <span class="glider" id="glider"></span>
+        <button data-view="lideranca" class="on" onclick="setView('lideranca')">★ Lideranças</button>
+        <button data-view="operacao" onclick="setView('operacao')">◐ Operação</button>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- ===================== VIEW BANNER ===================== -->
+<div class="viewbanner">
+  <div class="viewbanner-in" id="banner"></div>
+</div>
+
+<div class="wrap" id="wrap">
+
+<!-- ============================================================= -->
+<!-- 1 · FINANCEIRO  (restrito)                                    -->
+<!-- ============================================================= -->
+<section class="section scroll-mt" id="financeiro" data-section data-access="lideranca">
+  <div class="section-head" style="background:var(--b-financeiro)">
+    <span style="--c:var(--c-financeiro);position:absolute;left:0;top:0;bottom:0;width:6px;background:var(--c-financeiro)"></span>
+    <div class="sh-icon" style="background:var(--c-financeiro)">💰</div>
+    <div>
+      <div class="sh-num" style="color:var(--c-financeiro)">ÁREA 01</div>
+      <h2>Financeiro</h2>
+      <div class="sh-sub">Notas, contas a pagar/receber e saúde financeira</div>
+    </div>
+    <span class="access-pill access-restrito">🔒 Restrito · Lideranças</span>
+  </div>
+
+  <div class="grid g4" data-block data-access="lideranca">
+    <div class="card kpi"><div class="k-label"><span class="k-ico" style="background:var(--b-financeiro)">🏦</span>Caixa disponível</div><div class="k-val">R$ 1,84 mi</div><div class="k-sub"><span class="trend up">▲ 6,2%</span> vs. mês anterior</div></div>
+    <div class="card kpi"><div class="k-label"><span class="k-ico" style="background:var(--b-financeiro)">📥</span>Total a receber</div><div class="k-val">R$ 742 mil</div><div class="k-sub"><span class="trend flat">● estável</span> 312 títulos</div></div>
+    <div class="card kpi"><div class="k-label"><span class="k-ico" style="background:var(--b-financeiro)">📤</span>Despesas totais</div><div class="k-val">R$ 968 mil</div><div class="k-sub"><span class="trend down">▲ 3,1%</span> acima do previsto</div></div>
+    <div class="card kpi"><div class="k-label"><span class="k-ico" style="background:var(--b-financeiro)">📈</span>Lucro (mês)</div><div class="k-val">R$ 286 mil</div><div class="k-sub"><span class="trend up">▲ 9,4%</span> margem 22,8%</div></div>
+  </div>
+
+  <div class="grid g3" data-block data-access="lideranca" style="margin-top:14px">
+    <div class="card span2">
+      <h3>Fluxo de caixa</h3><div class="csub">Entradas, saídas e saldo acumulado — últimos 6 meses</div>
+      <div class="chart-box"><canvas id="ch_fluxo"></canvas></div>
+    </div>
+    <div class="card">
+      <h3>Despesas</h3><div class="csub">Fixas x variáveis (mês atual)</div>
+      <div class="chart-box"><canvas id="ch_despesas"></canvas></div>
+    </div>
+  </div>
+
+  <div class="grid g3" data-block data-access="lideranca" style="margin-top:14px">
+    <div class="card">
+      <h3>Notas fiscais</h3><div class="csub">Origem: Bolt</div>
+      <div class="prow"><span class="pname">Emitidas</span><div class="ptrack"><div class="pfill" style="width:88%;background:var(--c-financeiro)"></div></div><span class="pval">1.284</span></div>
+      <div class="prow"><span class="pname">Solicitações</span><div class="ptrack"><div class="pfill" style="width:70%;background:var(--c-financeiro)"></div></div><span class="pval">1.022</span></div>
+      <div class="prow"><span class="pname">Pendentes</span><div class="ptrack"><div class="pfill" style="width:14%;background:#E8A13A"></div></div><span class="pval">47</span></div>
+    </div>
+    <div class="card">
+      <h3>Contas a receber</h3><div class="csub">Origem: Banco Itaú</div>
+      <div class="prow"><span class="pname">Inadimplência</span><div class="ptrack"><div class="pfill" style="width:31%;background:#D85B5B"></div></div><span class="pval">3,1%</span></div>
+      <div class="prow"><span class="pname">Valor inadimplente</span><div class="ptrack"><div class="pfill" style="width:23%;background:#D85B5B"></div></div><span class="pval">R$ 23k</span></div>
+      <div class="prow"><span class="pname">Cancel. + descontos</span><div class="ptrack"><div class="pfill" style="width:18%;background:#E8A13A"></div></div><span class="pval">R$ 14k</span></div>
+    </div>
+    <div class="card">
+      <h3>Saúde financeira</h3><div class="csub">Margem média de contribuição</div>
+      <div class="prow"><span class="pname">Pagamentos no prazo</span><div class="ptrack"><div class="pfill" style="width:94%;background:#3FB169"></div></div><span class="pval">94%</span></div>
+      <div class="prow"><span class="pname">Margem online</span><div class="ptrack"><div class="pfill" style="width:61%;background:var(--c-financeiro)"></div></div><span class="pval">61%</span></div>
+      <div class="prow"><span class="pname">Margem presencial</span><div class="ptrack"><div class="pfill" style="width:48%;background:var(--c-financeiro)"></div></div><span class="pval">48%</span></div>
+    </div>
+  </div>
+  <div class="block-label" style="margin-bottom:0">Indicadores consolidados <span class="ln"></span></div>
+  <div class="grid g4" data-block data-access="lideranca" style="margin-top:12px">
+    <div class="card kpi"><div class="k-label">EBITDA</div><div class="k-val" style="font-size:23px">R$ 341 mil</div></div>
+    <div class="card kpi"><div class="k-label">DRE — resultado</div><div class="k-val" style="font-size:23px">+ R$ 286 mil</div></div>
+    <div class="card kpi"><div class="k-label">Fluxo de caixa proj.</div><div class="k-val" style="font-size:23px">R$ 2,1 mi</div></div>
+    <div class="card kpi"><div class="k-label">Notas pendentes</div><div class="k-val" style="font-size:23px">47</div></div>
+  </div>
+</section>
+
+<!-- ============================================================= -->
+<!-- 2 · COMERCIAL  (restrito; Top 10 = geral)                     -->
+<!-- ============================================================= -->
+<section class="section scroll-mt" id="comercial" data-section data-access="mixed">
+  <div class="section-head" style="background:var(--b-comercial)">
+    <span style="position:absolute;left:0;top:0;bottom:0;width:6px;background:var(--c-comercial)"></span>
+    <div class="sh-icon" style="background:var(--c-comercial)">🤝</div>
+    <div>
+      <div class="sh-num" style="color:var(--c-comercial)">ÁREA 02</div>
+      <h2>Comercial</h2>
+      <div class="sh-sub">PJ, PF, metas e pipeline</div>
+    </div>
+    <span class="access-pill access-restrito" data-pill="lideranca">🔒 Restrito · Lideranças</span>
+    <span class="access-pill access-geral" data-pill="operacao" hidden>👁 Geral · recorte</span>
+  </div>
+
+  <!-- GERAL geral -->
+  <div data-block data-access="lideranca">
+    <div class="grid g3">
+      <div class="card kpi span2"><div class="k-label"><span class="k-ico" style="background:var(--b-comercial)">💵</span>Faturamento total</div><div class="k-val">R$ 1,42 mi</div><div class="k-sub"><span class="trend up">▲ 11%</span> · segmentável por empresa nova × antiga × CNPJ novo</div></div>
+      <div class="card kpi"><div class="k-label">Receita avulsa × composta</div><div class="k-val" style="font-size:22px">38% / 62%</div><div class="k-sub">1 treino × multi-treino</div></div>
+    </div>
+  </div>
+
+  <!-- PJ -->
+  <div class="block-label" data-block data-access="lideranca">PJ — Pessoa Jurídica <span class="minitag mt-restrito">🔒 Lideranças</span><span class="ln"></span></div>
+  <div class="grid g4" data-block data-access="lideranca">
+    <div class="card kpi"><div class="k-label">Faturamento PJ</div><div class="k-val" style="font-size:24px">R$ 980 mil</div><div class="k-sub">por vendedora · por curso</div></div>
+    <div class="card kpi"><div class="k-label">Ticket médio PJ</div><div class="k-val" style="font-size:24px">R$ 8,4k</div><div class="k-sub"><span class="trend up">▲ 4%</span></div></div>
+    <div class="card kpi"><div class="k-label">Orçamentos enviados</div><div class="k-val" style="font-size:24px">214</div><div class="k-sub">origem: Bolt</div></div>
+    <div class="card kpi"><div class="k-label">Vendas realizadas</div><div class="k-val" style="font-size:24px">96</div><div class="k-sub">conversão 44,8%</div></div>
+  </div>
+  <div class="grid g2" data-block data-access="lideranca" style="margin-top:14px">
+    <div class="card">
+      <h3>Faturamento PJ × PF</h3><div class="csub">Comparativo mensal (R$ mil)</div>
+      <div class="chart-box"><canvas id="ch_pjpf"></canvas></div>
+    </div>
+    <div class="card">
+      <h3>Origem das conversões</h3><div class="csub">Por campanha / meio · origem: Bolt</div>
+      <div class="chart-box"><canvas id="ch_origem"></canvas></div>
+    </div>
+  </div>
+
+  <!-- PF -->
+  <div class="block-label" data-block data-access="lideranca">PF — Pessoa Física <span class="minitag mt-restrito">🔒 Lideranças</span><span class="ln"></span></div>
+  <div class="grid g4" data-block data-access="lideranca">
+    <div class="card kpi"><div class="k-label">Faturamento PF</div><div class="k-val" style="font-size:24px">R$ 442 mil</div><div class="k-sub">origem: Pagar.me</div></div>
+    <div class="card kpi"><div class="k-label">Ticket médio PF</div><div class="k-val" style="font-size:24px">R$ 1,2k</div><div class="k-sub">por produto</div></div>
+    <div class="card kpi"><div class="k-label">Leads PF</div><div class="k-val" style="font-size:24px">1.870</div><div class="k-sub">por curso</div></div>
+    <div class="card kpi"><div class="k-label">Vendas PF</div><div class="k-val" style="font-size:24px">368</div><div class="k-sub">origem: Bolt</div></div>
+  </div>
+
+  <!-- METAS -->
+  <div class="block-label" data-block data-access="lideranca">Metas por vendedora <span class="minitag mt-restrito">🔒 Lideranças</span><span class="ln"></span></div>
+  <div class="grid g2" data-block data-access="lideranca">
+    <div class="card">
+      <h3>% da meta alcançada</h3><div class="csub">Mês atual · origem: Planilha de vendas</div>
+      <div class="prow"><span class="pname">Marina</span><div class="ptrack"><div class="pfill" style="width:112%;max-width:100%;background:#3FB169"></div></div><span class="pval">112%</span></div>
+      <div class="prow"><span class="pname">Júlia</span><div class="ptrack"><div class="pfill" style="width:89%;background:var(--c-comercial)"></div></div><span class="pval">89%</span></div>
+      <div class="prow"><span class="pname">Beatriz</span><div class="ptrack"><div class="pfill" style="width:74%;background:var(--c-comercial)"></div></div><span class="pval">74%</span></div>
+      <div class="prow"><span class="pname">Carla</span><div class="ptrack"><div class="pfill" style="width:58%;background:#E8A13A"></div></div><span class="pval">58%</span></div>
+    </div>
+    <div class="card">
+      <h3>DU — dias úteis restantes</h3><div class="csub">Mês atual + 2 meses anteriores</div>
+      <div class="chart-box"><canvas id="ch_meta"></canvas></div>
+    </div>
+  </div>
+
+  <!-- TOP 10 — GERAL -->
+  <div class="block-label" data-block data-access="geral">Top 10 negociações em curso <span class="minitag mt-geral">👁 Visível p/ todos</span><span class="ln"></span></div>
+  <div class="card" data-block data-access="geral" style="padding:8px 8px 4px">
+    <table class="tbl">
+      <thead><tr><th>Negociação</th><th>Vendedora</th><th class="num">Valor</th><th>Status / andamento</th></tr></thead>
+      <tbody>
+        <tr><td><b>Grupo Vértice</b> · 4 turmas</td><td>Marina</td><td class="num">R$ 84k</td><td><span class="status s-fechando">Fechando</span><div class="statusbar"><i style="width:90%;background:#3FB169"></i></div></td></tr>
+        <tr><td><b>Indústria Nova Era</b></td><td>Júlia</td><td class="num">R$ 61k</td><td><span class="status s-andamento">Em andamento</span><div class="statusbar"><i style="width:55%;background:#3597D6"></i></div></td></tr>
+        <tr><td><b>Rede Sul Logística</b></td><td>Beatriz</td><td class="num">R$ 52k</td><td><span class="status s-proposta">Proposta enviada</span><div class="statusbar"><i style="width:40%;background:var(--c-financeiro)"></i></div></td></tr>
+        <tr><td><b>Construtora Pilar</b></td><td>Marina</td><td class="num">R$ 47k</td><td><span class="status s-negociando">Negociando</span><div class="statusbar"><i style="width:65%;background:#E8A13A"></i></div></td></tr>
+        <tr><td><b>TechFlow Sistemas</b></td><td>Carla</td><td class="num">R$ 39k</td><td><span class="status s-andamento">Em andamento</span><div class="statusbar"><i style="width:50%;background:#3597D6"></i></div></td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ============================================================= -->
+<!-- 3 · MARKETING (restrito)                                      -->
+<!-- ============================================================= -->
+<section class="section scroll-mt" id="marketing" data-section data-access="lideranca">
+  <div class="section-head" style="background:var(--b-marketing)">
+    <span style="position:absolute;left:0;top:0;bottom:0;width:6px;background:var(--c-marketing)"></span>
+    <div class="sh-icon" style="background:var(--c-marketing)">📣</div>
+    <div>
+      <div class="sh-num" style="color:var(--c-marketing)">ÁREA 03</div>
+      <h2>Marketing</h2>
+      <div class="sh-sub">Leads, aquisição e performance de site</div>
+    </div>
+    <span class="access-pill access-restrito">🔒 Restrito · Lideranças</span>
+  </div>
+  <div class="grid g4" data-block data-access="lideranca">
+    <div class="card kpi"><div class="k-label">Leads no mês</div><div class="k-val">3.740</div><div class="k-sub"><span class="trend up">▲ 8%</span></div></div>
+    <div class="card kpi"><div class="k-label">CPL</div><div class="k-val">R$ 12,80</div><div class="k-sub"><span class="trend up">▼ 6%</span> melhorou</div></div>
+    <div class="card kpi"><div class="k-label">MQL</div><div class="k-val">612</div><div class="k-sub">por nº de colaboradores</div></div>
+    <div class="card kpi"><div class="k-label">ROAS</div><div class="k-val">4,3×</div><div class="k-sub"><span class="trend up">▲ 0,4</span></div></div>
+  </div>
+  <div class="grid g3" data-block data-access="lideranca" style="margin-top:14px">
+    <div class="card span2">
+      <h3>Leads por canal</h3><div class="csub">Distribuição do mês</div>
+      <div class="chart-box"><canvas id="ch_canal"></canvas></div>
+    </div>
+    <div class="card">
+      <h3>Site &amp; performance</h3><div class="csub">Saúde técnica</div>
+      <div class="prow"><span class="pname">Receita p/ leads MKT</span><div class="ptrack"><div class="pfill" style="width:72%;background:var(--c-marketing)"></div></div><span class="pval">R$ 410k</span></div>
+      <div class="prow"><span class="pname">Bugs corrigidos</span><div class="ptrack"><div class="pfill" style="width:80%;background:#3FB169"></div></div><span class="pval">28</span></div>
+      <div class="prow"><span class="pname">Velocidade de página</span><div class="ptrack"><div class="pfill" style="width:86%;background:#3FB169"></div></div><span class="pval">1,4s</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================= -->
+<!-- 4 · PRODUTO (entregas=restrito; visualização=geral)          -->
+<!-- ============================================================= -->
+<section class="section scroll-mt" id="produto" data-section data-access="mixed">
+  <div class="section-head" style="background:var(--b-produto)">
+    <span style="position:absolute;left:0;top:0;bottom:0;width:6px;background:var(--c-produto)"></span>
+    <div class="sh-icon" style="background:var(--c-produto)">🎬</div>
+    <div>
+      <div class="sh-num" style="color:var(--c-produto)">ÁREA 04</div>
+      <h2>Produto</h2>
+      <div class="sh-sub">Gestão de entregas e portfólio de cursos</div>
+    </div>
+    <span class="access-pill access-restrito" data-pill="lideranca">🔒 Misto</span>
+    <span class="access-pill access-geral" data-pill="operacao" hidden>👁 Geral · recorte</span>
+  </div>
+
+  <div class="block-label" data-block data-access="lideranca">Gestão de entregas <span class="minitag mt-restrito">🔒 Lideranças</span><span class="ln"></span></div>
+  <div class="grid g2" data-block data-access="lideranca">
+    <div class="card kpi"><div class="k-label">% de entregas no prazo</div><div class="k-val">91%</div><div class="k-sub"><span class="trend up">▲ 3%</span> meta 90%</div></div>
+    <div class="card kpi"><div class="k-label">Ocupação — equipe de edição</div><div class="k-val">78%</div><div class="k-sub"><span class="trend flat">● saudável</span> capacidade</div></div>
+  </div>
+
+  <div class="block-label" data-block data-access="geral">Visualização geral <span class="minitag mt-geral">👁 Visível p/ todos</span><span class="ln"></span></div>
+  <div class="grid g3" data-block data-access="geral">
+    <div class="card kpi"><div class="k-label">Cursos em produção</div><div class="k-val">7</div><div class="k-sub">em desenvolvimento</div></div>
+    <div class="card kpi"><div class="k-label">Cursos no portfólio</div><div class="k-val">42</div><div class="k-sub">ativos</div></div>
+    <div class="card kpi"><div class="k-label">Investido na produção</div><div class="k-val" style="font-size:24px">R$ 318k</div><div class="k-sub">ano corrente</div></div>
+  </div>
+  <div class="card" data-block data-access="geral" style="margin-top:14px">
+    <h3>Cursos em produção</h3><div class="csub">% de desenvolvimento</div>
+    <div class="prow"><span class="pname">Excel Avançado 2026</span><div class="ptrack"><div class="pfill" style="width:82%;background:var(--c-produto)"></div></div><span class="pval">82%</span></div>
+    <div class="prow"><span class="pname">Power BI do Zero</span><div class="ptrack"><div class="pfill" style="width:64%;background:var(--c-produto)"></div></div><span class="pval">64%</span></div>
+    <div class="prow"><span class="pname">Gestão de Processos</span><div class="ptrack"><div class="pfill" style="width:45%;background:var(--c-produto)"></div></div><span class="pval">45%</span></div>
+    <div class="prow"><span class="pname">Liderança na Prática</span><div class="ptrack"><div class="pfill" style="width:28%;background:#E8A13A"></div></div><span class="pval">28%</span></div>
+  </div>
+</section>
+
+<!-- ============================================================= -->
+<!-- 5 · ESCOLA TÉCNICA (restrito)                                 -->
+<!-- ============================================================= -->
+<section class="section scroll-mt" id="escola" data-section data-access="lideranca">
+  <div class="section-head" style="background:var(--b-escola)">
+    <span style="position:absolute;left:0;top:0;bottom:0;width:6px;background:var(--c-escola)"></span>
+    <div class="sh-icon" style="background:var(--c-escola)">🏫</div>
+    <div>
+      <div class="sh-num" style="color:var(--c-escola)">ÁREA 05</div>
+      <h2>Escola Técnica</h2>
+      <div class="sh-sub">Resultado financeiro e funil da unidade</div>
+    </div>
+    <span class="access-pill access-restrito">🔒 Restrito · Lideranças</span>
+  </div>
+  <div class="grid g4" data-block data-access="lideranca">
+    <div class="card kpi"><div class="k-label">Faturamento total</div><div class="k-val" style="font-size:24px">R$ 612 mil</div><div class="k-sub"><span class="trend up">▲ 7%</span></div></div>
+    <div class="card kpi"><div class="k-label">Valor em caixa</div><div class="k-val" style="font-size:24px">R$ 198 mil</div></div>
+    <div class="card kpi"><div class="k-label">Despesas totais</div><div class="k-val" style="font-size:24px">R$ 451 mil</div><div class="k-sub">fixas 68% · var. 32%</div></div>
+    <div class="card kpi"><div class="k-label">Ticket médio</div><div class="k-val" style="font-size:24px">R$ 2,9k</div></div>
+    <div class="card kpi"><div class="k-label">CAC</div><div class="k-val" style="font-size:24px">R$ 340</div></div>
+    <div class="card kpi"><div class="k-label">Inadimplência</div><div class="k-val" style="font-size:24px">4,2%</div></div>
+    <div class="card kpi"><div class="k-label">Cancelamentos</div><div class="k-val" style="font-size:24px">31</div><div class="k-sub">por momento da desistência</div></div>
+    <div class="card kpi"><div class="k-label">Vendas realizadas</div><div class="k-val" style="font-size:24px">212</div></div>
+  </div>
+  <div class="grid g3" data-block data-access="lideranca" style="margin-top:14px">
+    <div class="card span2">
+      <h3>Fluxo de caixa — unidade</h3><div class="csub">Últimos 6 meses (R$ mil)</div>
+      <div class="chart-box"><canvas id="ch_escola"></canvas></div>
+    </div>
+    <div class="card">
+      <h3>Funil do mês</h3><div class="csub">Do lead à venda</div>
+      <div class="prow"><span class="pname">Leads</span><div class="ptrack"><div class="pfill" style="width:100%;background:var(--c-escola)"></div></div><span class="pval">1.420</span></div>
+      <div class="prow"><span class="pname">Orçamentos</span><div class="ptrack"><div class="pfill" style="width:42%;background:var(--c-escola)"></div></div><span class="pval">598</span></div>
+      <div class="prow"><span class="pname">Vendas</span><div class="ptrack"><div class="pfill" style="width:15%;background:#3FB169"></div></div><span class="pval">212</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================= -->
+<!-- 6 · VISÃO GERAL (geral)                                       -->
+<!-- ============================================================= -->
+<section class="section scroll-mt" id="visao" data-section data-access="geral">
+  <div class="section-head" style="background:var(--b-visao)">
+    <span style="position:absolute;left:0;top:0;bottom:0;width:6px;background:var(--c-visao)"></span>
+    <div class="sh-icon" style="background:var(--c-visao)">🧭</div>
+    <div>
+      <div class="sh-num" style="color:var(--c-visao)">ÁREA 06</div>
+      <h2>Visão Geral</h2>
+      <div class="sh-sub">Integração da equipe e documentos do dia a dia</div>
+    </div>
+    <span class="access-pill access-geral">👁 Geral · todo o time</span>
+  </div>
+  <div class="grid g2" data-block data-access="geral">
+    <div class="card">
+      <h3>Central de documentos</h3><div class="csub">Acesso rápido para todo o time</div>
+      <div class="doc-item"><span class="di-ico" style="background:var(--b-visao)">👥</span><div><div class="di-t">Equipe &amp; funções</div><div class="di-s">Quem faz o quê — versão simples</div></div><a class="di-go" href="#">Abrir →</a></div>
+      <div class="doc-item"><span class="di-ico" style="background:var(--b-visao)">✉️</span><div><div class="di-t">Lista de e-mails por setor</div><div class="di-s">Contatos internos</div></div><a class="di-go" href="#">Abrir →</a></div>
+      <div class="doc-item"><span class="di-ico" style="background:var(--b-visao)">✅</span><div><div class="di-t">Política de Qualidade</div><div class="di-s">Documento oficial</div></div><a class="di-go" href="#">Abrir →</a></div>
+      <div class="doc-item"><span class="di-ico" style="background:var(--b-visao)">📘</span><div><div class="di-t">Manual do Funcionário</div><div class="di-s">Onboarding e regras</div></div><a class="di-go" href="#">Abrir →</a></div>
+    </div>
+    <div class="card">
+      <h3>Pessoas</h3><div class="csub">Aniversariantes &amp; ausências do mês</div>
+      <div class="block-label" style="margin:4px 0 6px;font-size:11px">🎂 Aniversariantes</div>
+      <div class="birthday"><span class="ava" style="background:var(--c-comercial)">MF</span><div><div class="di-t">Marina Freitas</div><div class="di-s">Comercial</div></div><span class="bd-date">12/06</span></div>
+      <div class="birthday"><span class="ava" style="background:var(--c-produto)">RL</span><div><div class="di-t">Rafael Lima</div><div class="di-s">Produto</div></div><span class="bd-date">21/06</span></div>
+      <div class="birthday"><span class="ava" style="background:var(--c-marketing)">CS</span><div><div class="di-t">Célio Souza</div><div class="di-s">Marketing</div></div><span class="bd-date">28/06</span></div>
+      <div class="block-label" style="margin:16px 0 6px;font-size:11px">🌴 Férias / Day Off</div>
+      <div class="birthday"><span class="ava" style="background:var(--c-dp)">JP</span><div><div class="di-t">João Pedro</div><div class="di-s">Férias · até 24/06</div></div><span class="bd-date">🌴</span></div>
+      <div class="birthday"><span class="ava" style="background:var(--c-suporte)">AT</span><div><div class="di-t">Ana Torres</div><div class="di-s">Day Off</div></div><span class="bd-date">18/06</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================= -->
+<!-- 7 · SUPORTE (restrito)                                        -->
+<!-- ============================================================= -->
+<section class="section scroll-mt" id="suporte" data-section data-access="lideranca">
+  <div class="section-head" style="background:var(--b-suporte)">
+    <span style="position:absolute;left:0;top:0;bottom:0;width:6px;background:var(--c-suporte)"></span>
+    <div class="sh-icon" style="background:var(--c-suporte)">🎧</div>
+    <div>
+      <div class="sh-num" style="color:var(--c-suporte)">ÁREA 07</div>
+      <h2>Suporte</h2>
+      <div class="sh-sub">Chamados de erro e tempo de resolução</div>
+    </div>
+    <span class="access-pill access-restrito">🔒 Restrito · Lideranças</span>
+  </div>
+  <div class="grid g4" data-block data-access="lideranca">
+    <div class="card kpi"><div class="k-label">Chamados reportados</div><div class="k-val">184</div><div class="k-sub">por alunos · a definir</div></div>
+    <div class="card kpi"><div class="k-label">Impacto / matrículas · PF</div><div class="k-val" style="font-size:24px">2,1%</div><div class="k-sub">chamados ÷ ativas</div></div>
+    <div class="card kpi"><div class="k-label">Impacto / matrículas · PJ</div><div class="k-val" style="font-size:24px">1,3%</div><div class="k-sub">chamados ÷ ativas</div></div>
+    <div class="card kpi"><div class="k-label">Tempo médio de resolução</div><div class="k-val" style="font-size:24px">6,4h</div><div class="k-sub">plataforma do Felipe</div></div>
+  </div>
+  <div class="card" data-block data-access="lideranca" style="margin-top:14px">
+    <h3>Chamados ao longo do mês</h3><div class="csub">Abertos × resolvidos</div>
+    <div class="chart-box"><canvas id="ch_suporte"></canvas></div>
+  </div>
+</section>
+
+<!-- ============================================================= -->
+<!-- 8 · DP (restrito)                                             -->
+<!-- ============================================================= -->
+<section class="section scroll-mt" id="dp" data-section data-access="lideranca">
+  <div class="section-head" style="background:var(--b-dp)">
+    <span style="position:absolute;left:0;top:0;bottom:0;width:6px;background:var(--c-dp)"></span>
+    <div class="sh-icon" style="background:var(--c-dp)">👔</div>
+    <div>
+      <div class="sh-num" style="color:var(--c-dp)">ÁREA 08</div>
+      <h2>Departamento Pessoal</h2>
+      <div class="sh-sub">Folha, benefícios e controle interno</div>
+    </div>
+    <span class="access-pill access-restrito">🔒 Restrito · Lideranças</span>
+  </div>
+  <div class="grid g4" data-block data-access="lideranca">
+    <div class="card kpi"><div class="k-label">Folha total</div><div class="k-val" style="font-size:24px">R$ 512 mil</div><div class="k-sub">origem: planilha do banco</div></div>
+    <div class="card kpi"><div class="k-label">Benefícios</div><div class="k-val" style="font-size:24px">R$ 78 mil</div></div>
+    <div class="card kpi"><div class="k-label">Novas contratações</div><div class="k-val" style="font-size:24px">R$ 22 mil</div><div class="k-sub">4 admissões</div></div>
+    <div class="card kpi"><div class="k-label">Rescisões</div><div class="k-val" style="font-size:24px">R$ 9 mil</div><div class="k-sub">2 desligamentos</div></div>
+  </div>
+  <div class="grid g2" data-block data-access="lideranca" style="margin-top:14px">
+    <div class="card">
+      <h3>Folha por setor</h3><div class="csub">Distribuição do gasto (R$ mil)</div>
+      <div class="chart-box"><canvas id="ch_folha"></canvas></div>
+    </div>
+    <div class="card">
+      <h3>Uniformes em estoque</h3><div class="csub">Planilha interna (a fazer) · por tamanho</div>
+      <div class="prow"><span class="pname">P</span><div class="ptrack"><div class="pfill" style="width:40%;background:var(--c-dp)"></div></div><span class="pval">18</span></div>
+      <div class="prow"><span class="pname">M</span><div class="ptrack"><div class="pfill" style="width:85%;background:var(--c-dp)"></div></div><span class="pval">42</span></div>
+      <div class="prow"><span class="pname">G</span><div class="ptrack"><div class="pfill" style="width:60%;background:var(--c-dp)"></div></div><span class="pval">29</span></div>
+      <div class="prow"><span class="pname">GG</span><div class="ptrack"><div class="pfill" style="width:18%;background:#E8A13A"></div></div><span class="pval">8</span></div>
+    </div>
+  </div>
+  <div class="grid g4" data-block data-access="lideranca" style="margin-top:14px">
+    <div class="card kpi"><div class="k-label">Férias (gasto total)</div><div class="k-val" style="font-size:23px">R$ 34 mil</div></div>
+    <div class="card kpi"><div class="k-label">Folha — maior setor</div><div class="k-val" style="font-size:23px">Comercial</div><div class="k-sub">R$ 142 mil</div></div>
+    <div class="card kpi"><div class="k-label">Colaboradores</div><div class="k-val" style="font-size:23px">64</div></div>
+    <div class="card kpi"><div class="k-label">Custo médio / colab.</div><div class="k-val" style="font-size:23px">R$ 8,0k</div></div>
+  </div>
+</section>
+
+<!-- ============================================================= -->
+<!-- 9 · ADMINISTRATIVO (restrito)                                 -->
+<!-- ============================================================= -->
+<section class="section scroll-mt" id="admin" data-section data-access="lideranca">
+  <div class="section-head" style="background:var(--b-admin)">
+    <span style="position:absolute;left:0;top:0;bottom:0;width:6px;background:var(--c-admin)"></span>
+    <div class="sh-icon" style="background:var(--c-admin)">🗂️</div>
+    <div>
+      <div class="sh-num" style="color:var(--c-admin)">ÁREA 09</div>
+      <h2>Administrativo</h2>
+      <div class="sh-sub">Patrimônio, contratos e suprimentos</div>
+    </div>
+    <span class="access-pill access-restrito">🔒 Restrito · Lideranças</span>
+  </div>
+  <div class="grid g4" data-block data-access="lideranca">
+    <div class="card kpi"><div class="k-label">Bens c/ responsável</div><div class="k-val">76%</div><div class="k-sub">c/ resp. ÷ cadastrados</div></div>
+    <div class="card kpi"><div class="k-label">Gasto em aquisição</div><div class="k-val" style="font-size:24px">R$ 41 mil</div><div class="k-sub">Planilha de Pagamentos</div></div>
+    <div class="card kpi"><div class="k-label">Contratos PJ ativos</div><div class="k-val">23</div><div class="k-sub">3 inativos</div></div>
+    <div class="card kpi"><div class="k-label">Valor mensal prestadores</div><div class="k-val" style="font-size:24px">R$ 67 mil</div></div>
+  </div>
+  <div class="grid g2" data-block data-access="lideranca" style="margin-top:14px">
+    <div class="card" style="padding:8px 8px 4px">
+      <table class="tbl">
+        <thead><tr><th>Contrato PJ</th><th>Setor</th><th>Vencimento</th><th class="num">Valor/mês</th></tr></thead>
+        <tbody>
+          <tr><td><b>Studio de Edição</b></td><td>Produto</td><td>30/08/26</td><td class="num">R$ 12k</td></tr>
+          <tr><td><b>Agência de Tráfego</b></td><td>Marketing</td><td>15/07/26</td><td class="num">R$ 9k</td></tr>
+          <tr><td><b>Contabilidade</b></td><td>Financeiro</td><td>01/12/26</td><td class="num">R$ 6k</td></tr>
+          <tr><td><b>Limpeza &amp; Facilities</b></td><td>Admin</td><td>20/09/26</td><td class="num">R$ 5k</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="card">
+      <h3>Compras &amp; suprimentos</h3><div class="csub">Estoque · disponibilidade por produto</div>
+      <div class="prow"><span class="pname"><span class="avail av-ok"></span> Papel A4</span><div class="ptrack"><div class="pfill" style="width:78%;background:#3FB169"></div></div><span class="pval">OK</span></div>
+      <div class="prow"><span class="pname"><span class="avail av-low"></span> Toner</span><div class="ptrack"><div class="pfill" style="width:30%;background:#E8A13A"></div></div><span class="pval">Baixo</span></div>
+      <div class="prow"><span class="pname"><span class="avail av-out"></span> Café</span><div class="ptrack"><div class="pfill" style="width:8%;background:#D85B5B"></div></div><span class="pval">Repor</span></div>
+      <div class="prow"><span class="pname"><span class="avail av-ok"></span> Material kit aluno</span><div class="ptrack"><div class="pfill" style="width:64%;background:#3FB169"></div></div><span class="pval">OK</span></div>
+      <div class="csub" style="margin:12px 0 0">Último a retirar: <b>Ana Torres</b> · Toner · 14/06</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================= -->
+<!-- 10 · PROCESSO (geral)                                         -->
+<!-- ============================================================= -->
+<section class="section scroll-mt" id="processo" data-section data-access="geral">
+  <div class="section-head" style="background:var(--b-processo)">
+    <span style="position:absolute;left:0;top:0;bottom:0;width:6px;background:var(--c-processo)"></span>
+    <div class="sh-icon" style="background:var(--c-processo)">🔄</div>
+    <div>
+      <div class="sh-num" style="color:var(--c-processo)">ÁREA 10</div>
+      <h2>Processos</h2>
+      <div class="sh-sub">Projetos em desenvolvimento e mapeamento</div>
+    </div>
+    <span class="access-pill access-geral">👁 Geral · todo o time</span>
+  </div>
+  <div class="block-label" data-block data-access="geral">Projetos em desenvolvimento <span class="ln"></span></div>
+  <div class="grid g3" data-block data-access="geral">
+    <div class="card">
+      <h3>Painel Unificado Farol</h3>
+      <div class="csub">Equipes: Processos · TI · Dados</div>
+      <p style="font-size:13px;color:var(--muted);margin-bottom:6px"><b style="color:var(--ink)">Objetivo:</b> centralizar indicadores de todos os setores em uma tela só.</p>
+      <p style="font-size:12.5px;color:var(--muted)"><b style="color:#3FB169">No escopo:</b> dashboards e acessos · <b style="color:#D85B5B">Fora:</b> automação de coleta (fase 2)</p>
+      <div class="prow" style="border:0;padding-top:14px"><span class="pname">Andamento</span><div class="ptrack"><div class="pfill" style="width:55%;background:var(--c-processo)"></div></div><span class="pval">55%</span></div>
+    </div>
+    <div class="card">
+      <h3>Mapa de Faturamento</h3>
+      <div class="csub">Equipes: Financeiro · Comercial</div>
+      <p style="font-size:13px;color:var(--muted);margin-bottom:6px"><b style="color:var(--ink)">Objetivo:</b> padronizar a planilha de vendas como fonte única.</p>
+      <p style="font-size:12.5px;color:var(--muted)"><b style="color:#3FB169">No escopo:</b> template + treinamento</p>
+      <div class="prow" style="border:0;padding-top:14px"><span class="pname">Andamento</span><div class="ptrack"><div class="pfill" style="width:80%;background:var(--c-processo)"></div></div><span class="pval">80%</span></div>
+    </div>
+    <div class="card">
+      <h3>Onboarding 2.0</h3>
+      <div class="csub">Equipes: DP · Processos</div>
+      <p style="font-size:13px;color:var(--muted);margin-bottom:6px"><b style="color:var(--ink)">Objetivo:</b> reduzir tempo de integração de novos colaboradores.</p>
+      <p style="font-size:12.5px;color:var(--muted)"><b style="color:#3FB169">No escopo:</b> trilha + manual</p>
+      <div class="prow" style="border:0;padding-top:14px"><span class="pname">Andamento</span><div class="ptrack"><div class="pfill" style="width:30%;background:#E8A13A"></div></div><span class="pval">30%</span></div>
+    </div>
+  </div>
+  <div class="card" data-block data-access="geral" style="margin-top:14px;padding:8px 8px 4px">
+    <table class="tbl">
+      <thead><tr><th>Processo</th><th>Equipe</th><th>Mapeamento</th><th>Otimização</th></tr></thead>
+      <tbody>
+        <tr><td><b>Emissão de notas</b></td><td>Financeiro</td><td><span class="status s-fechando">Concluído</span></td><td><span class="status s-andamento">Em curso</span></td></tr>
+        <tr><td><b>Fluxo de matrícula</b></td><td>Comercial</td><td><span class="status s-fechando">Concluído</span></td><td><span class="status s-proposta">A iniciar</span></td></tr>
+        <tr><td><b>Produção de cursos</b></td><td>Produto</td><td><span class="status s-andamento">Em curso</span></td><td><span class="status s-proposta">A iniciar</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+</div><!-- /wrap -->
+
+<footer>
+  <span>Farol · Painel Unificado — protótipo navegável com dados fictícios</span>
+  <span id="foot-mode">Visão: Lideranças · 10 áreas</span>
+</footer>
+
+<script>
+/* ============ DADOS DAS ÁREAS (para nav dinâmica) ============ */
+const SECTIONS = [
+  {id:'financeiro', label:'Financeiro', color:'var(--c-financeiro)', access:'lideranca'},
+  {id:'comercial',  label:'Comercial',  color:'var(--c-comercial)',  access:'mixed'},
+  {id:'marketing',  label:'Marketing',  color:'var(--c-marketing)',  access:'lideranca'},
+  {id:'produto',    label:'Produto',    color:'var(--c-produto)',    access:'mixed'},
+  {id:'escola',     label:'Escola Téc.',color:'var(--c-escola)',     access:'lideranca'},
+  {id:'visao',      label:'Visão Geral',color:'var(--c-visao)',      access:'geral'},
+  {id:'suporte',    label:'Suporte',    color:'var(--c-suporte)',    access:'lideranca'},
+  {id:'dp',         label:'DP',         color:'var(--c-dp)',         access:'lideranca'},
+  {id:'admin',      label:'Admin',      color:'var(--c-admin)',      access:'lideranca'},
+  {id:'processo',   label:'Processos',  color:'var(--c-processo)',   access:'geral'},
+];
+
+let currentView = 'lideranca';
+
+/* ============ TOGGLE DE ACESSO ============ */
+function setView(view){
+  currentView = view;
+  document.querySelectorAll('.seg button').forEach(b=>b.classList.toggle('on', b.dataset.view===view));
+  positionGlider();
+
+  // blocos: mostra geral sempre; lideranca só na visão lideranca
+  document.querySelectorAll('[data-block]').forEach(el=>{
+    const acc = el.dataset.access;
+    el.hidden = (view==='operacao' && acc==='lideranca');
+  });
+
+  // seções: aparecem se tiverem ao menos 1 bloco visível
+  document.querySelectorAll('[data-section]').forEach(sec=>{
+    const visibleBlocks = sec.querySelectorAll('[data-block]:not([hidden])').length;
+    sec.hidden = (visibleBlocks===0);
+    // troca a pílula de acesso (Misto -> Geral) nas seções mistas
+    sec.querySelectorAll('[data-pill]').forEach(p=>{
+      p.hidden = (p.dataset.pill!==view);
+    });
+  });
+
+  buildNav();
+  updateBanner();
+}
+
+function positionGlider(){
+  const seg = document.getElementById('seg');
+  const glider = document.getElementById('glider');
+  const active = seg.querySelector('button.on');
+  glider.style.width = active.offsetWidth+'px';
+  glider.style.transform = `translateX(${active.offsetLeft-4}px)`;
+  glider.style.background = currentView==='lideranca' ? 'var(--accent)' : '#4FA268';
+}
+
+/* ============ BANNER EXPLICATIVO ============ */
+function updateBanner(){
+  const b = document.getElementById('banner');
+  const visibleSecs = SECTIONS.filter(s=> document.getElementById(s.id) && !document.getElementById(s.id).hidden).length;
+  if(currentView==='lideranca'){
+    b.style.background='var(--accent-soft)'; b.style.borderColor='#D9D6FB'; b.style.color='#3B348C';
+    b.innerHTML = `<span class="tag" style="background:var(--accent)">★ LIDERANÇAS</span> <span><b>Visão completa.</b> Todos os ${visibleSecs} setores e indicadores, incluindo os dados gerais que o time também vê.</span>`;
+    document.getElementById('foot-mode').textContent='Visão: Lideranças · 10 áreas';
+  } else {
+    b.style.background='#E2F1E6'; b.style.borderColor='#C5E5CE'; b.style.color='#256B3E';
+    b.innerHTML = `<span class="tag" style="background:#4FA268">◐ OPERAÇÃO</span> <span><b>Recorte do time.</b> Apenas os dados liberados para todos — ${visibleSecs} áreas visíveis. O restante fica sob consulta das lideranças.</span>`;
+    document.getElementById('foot-mode').textContent='Visão: Operação · recorte geral';
+  }
+}
+
+/* ============ NAV DINÂMICA + SCROLL-SPY ============ */
+function buildNav(){
+  const nav = document.getElementById('nav');
+  nav.innerHTML='';
+  SECTIONS.forEach(s=>{
+    const sec = document.getElementById(s.id);
+    if(sec && sec.hidden) return;
+    const a = document.createElement('a');
+    a.href = '#'+s.id;
+    a.dataset.target = s.id;
+    a.innerHTML = `<span class="dot" style="color:${s.color}"></span>${s.label}`;
+    nav.appendChild(a);
+  });
+}
+
+/* destaca item ativo conforme rolagem */
+const spy = new IntersectionObserver((entries)=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting){
+      document.querySelectorAll('#nav a').forEach(a=>{
+        a.classList.toggle('active', a.dataset.target===e.target.id);
+      });
+    }
+  });
+},{rootMargin:'-45% 0px -50% 0px'});
+document.querySelectorAll('[data-section]').forEach(s=>spy.observe(s));
+
+/* ============ GRÁFICOS (Chart.js) ============ */
+const FONT = "Inter, sans-serif";
+Chart.defaults.font.family = FONT;
+Chart.defaults.color = '#6A7180';
+Chart.defaults.plugins.legend.labels.boxWidth = 10;
+Chart.defaults.plugins.legend.labels.boxHeight = 10;
+Chart.defaults.plugins.legend.labels.usePointStyle = true;
+const meses = ['Jan','Fev','Mar','Abr','Mai','Jun'];
+const grid = {color:'#EFEBE3', drawBorder:false};
+const noGrid = {grid:{display:false}};
+
+function mk(id, cfg){ const el=document.getElementById(id); if(el) new Chart(el, cfg); }
+
+mk('ch_fluxo',{type:'line',data:{labels:meses,datasets:[
+  {label:'Entradas',data:[820,910,880,1020,1140,1180],borderColor:'#3FB169',backgroundColor:'rgba(63,177,105,.08)',fill:true,tension:.4,pointRadius:0,borderWidth:3},
+  {label:'Saídas',data:[640,700,720,810,890,968],borderColor:'#D85B5B',backgroundColor:'transparent',tension:.4,pointRadius:0,borderWidth:3},
+  {label:'Saldo',data:[180,210,160,210,250,286],borderColor:'#7C6FF0',backgroundColor:'transparent',tension:.4,pointRadius:0,borderWidth:2,borderDash:[5,4]}
+]},options:{maintainAspectRatio:false,plugins:{legend:{position:'bottom'}},scales:{y:{grid},x:noGrid}}});
+
+mk('ch_despesas',{type:'doughnut',data:{labels:['Fixas','Variáveis'],datasets:[{data:[631,337],backgroundColor:['#7C6FF0','#C9C2F7'],borderWidth:0}]},options:{maintainAspectRatio:false,cutout:'68%',plugins:{legend:{position:'bottom'}}}});
+
+mk('ch_pjpf',{type:'bar',data:{labels:meses,datasets:[
+  {label:'PJ',data:[720,810,760,880,920,980],backgroundColor:'#E8588E',borderRadius:6},
+  {label:'PF',data:[300,340,360,400,420,442],backgroundColor:'#F4A7C4',borderRadius:6}
+]},options:{maintainAspectRatio:false,plugins:{legend:{position:'bottom'}},scales:{y:{grid},x:noGrid}}});
+
+mk('ch_origem',{type:'doughnut',data:{labels:['Google Ads','Meta Ads','Orgânico','Indicação'],datasets:[{data:[42,28,18,12],backgroundColor:['#E8588E','#F0913C','#7C6FF0','#3597D6'],borderWidth:0}]},options:{maintainAspectRatio:false,cutout:'62%',plugins:{legend:{position:'bottom'}}}});
+
+mk('ch_meta',{type:'bar',data:{labels:['Abr','Mai','Jun'],datasets:[
+  {label:'Marina',data:[20,21,22],backgroundColor:'#E8588E',borderRadius:5},
+  {label:'Júlia',data:[20,21,22],backgroundColor:'#F0913C',borderRadius:5},
+  {label:'Beatriz',data:[20,21,22],backgroundColor:'#7C6FF0',borderRadius:5}
+]},options:{maintainAspectRatio:false,plugins:{legend:{position:'bottom'}},scales:{y:{grid,title:{display:true,text:'DU restantes'}},x:noGrid}}});
+
+mk('ch_canal',{type:'bar',data:{labels:['Google','Meta','Orgânico','E-mail','Indicação','WhatsApp'],datasets:[
+  {label:'Leads',data:[1280,940,610,330,290,290],backgroundColor:['#EF8E3A','#F0A560','#F4BC85','#F7CFA8','#FADFC4','#FCEADA'],borderRadius:6}
+]},options:{maintainAspectRatio:false,indexAxis:'y',plugins:{legend:{display:false}},scales:{x:{grid},y:noGrid}}});
+
+mk('ch_escola',{type:'line',data:{labels:meses,datasets:[
+  {label:'Entradas',data:[420,470,450,520,580,612],borderColor:'#E36A37',backgroundColor:'rgba(227,106,55,.1)',fill:true,tension:.4,pointRadius:0,borderWidth:3},
+  {label:'Saídas',data:[360,390,400,420,440,451],borderColor:'#D85B5B',tension:.4,pointRadius:0,borderWidth:3}
+]},options:{maintainAspectRatio:false,plugins:{legend:{position:'bottom'}},scales:{y:{grid},x:noGrid}}});
+
+mk('ch_suporte',{type:'line',data:{labels:['Sem 1','Sem 2','Sem 3','Sem 4'],datasets:[
+  {label:'Abertos',data:[52,48,41,43],borderColor:'#2CA59C',backgroundColor:'rgba(44,165,156,.1)',fill:true,tension:.4,pointRadius:0,borderWidth:3},
+  {label:'Resolvidos',data:[44,50,46,48],borderColor:'#3FB169',tension:.4,pointRadius:0,borderWidth:3}
+]},options:{maintainAspectRatio:false,plugins:{legend:{position:'bottom'}},scales:{y:{grid},x:noGrid}}});
+
+mk('ch_folha',{type:'bar',data:{labels:['Comercial','Produto','DP/Admin','Suporte','Marketing','Escola'],datasets:[
+  {label:'R$ mil',data:[142,98,76,64,52,80],backgroundColor:'#CD9F34',borderRadius:6}
+]},options:{maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{grid},x:noGrid}}});
+
+/* ============ INIT ============ */
+buildNav();
+updateBanner();
+window.addEventListener('load', positionGlider);
+window.addEventListener('resize', positionGlider);
+setTimeout(positionGlider, 100);
+</script>
+</body>
+</html>
