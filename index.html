@@ -3,904 +3,967 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Calendário Financeiro — Engehall</title>
+<title>Engehall Treinamentos · Painel Unificado</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --azul:#004F92;--azul-claro:#0079D2;--laranja:#E05C16;--laranja-vivo:#FA9E00;
-  --branco:#fff;--cinza-bg:#f4f5f7;--cinza-borda:#dde1e7;
-  --cinza-text:#4a5568;--cinza-muted:#8a94a6;--text-dark:#1a202c;
+  /* Identidade Engehall */
+  --azul:#004F92;
+  --azul-claro:#0079D2;
+  --azul-pele:#90B6D1;
+  --laranja:#E05C16;
+  --laranja-vivo:#FA9E00;
+
+  --bg:#F2F5F8;
+  --card:#FFFFFF;
+  --ink:#152233;
+  --muted:#647184;
+  --line:#E2E7EE;
+  --accent:var(--azul);
+  --accent-soft:#E4EEF6;
+  --shadow:0 1px 2px rgba(0,49,92,.05), 0 8px 24px rgba(0,49,92,.07);
+  --shadow-sm:0 1px 2px rgba(0,49,92,.06);
+  --radius:18px;
+
+  /* cores por área (Visão Geral = azul institucional, âncora do topo) */
+  --c-visao:#004F92;       --b-visao:#E2ECF5;
+  --c-comercial:#1C7A8C;   --b-comercial:#DCEEF1;
+  --c-financeiro:#2E7D52;  --b-financeiro:#E0F0E8;
+  --c-marketing:#E05C16;   --b-marketing:#FBE6DA;
+  --c-produto:#5B57C2;     --b-produto:#E7E6F7;
+  --c-escola:#C24E7A;      --b-escola:#F8E4EC;
+  --c-suporte:#1F8FB0;     --b-suporte:#DDEFF5;
+  --c-dp:#B5862B;          --b-dp:#F6ECD6;
+  --c-admin:#7A6CB0;       --b-admin:#ECE8F6;
+  --c-processo:#4A7C59;    --b-processo:#E2EFE6;
 }
-body{font-family:'Poppins',sans-serif;background:var(--cinza-bg);color:var(--text-dark);min-height:100vh;font-size:14px}
-header{background:var(--azul);position:sticky;top:0;z-index:50;box-shadow:0 2px 12px rgba(0,79,146,.35)}
-.header-inner{max-width:1280px;margin:0 auto;padding:0 2rem;height:64px;display:flex;align-items:center;justify-content:space-between}
-.header-brand{display:flex;align-items:center;gap:14px}
-.brand-name{font-size:17px;font-weight:700;color:#fff}
-.brand-sub{font-size:11px;color:rgba(255,255,255,.6);text-transform:uppercase;letter-spacing:.04em}
-.hdr-btns{display:flex;gap:8px}
-.btn-hdr{display:flex;align-items:center;gap:6px;font-family:'Poppins',sans-serif;font-size:12px;font-weight:500;color:rgba(255,255,255,.85);background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);border-radius:6px;padding:7px 14px;cursor:pointer;transition:.15s}
-.btn-hdr:hover{background:rgba(255,255,255,.22);color:#fff}
-.btn-hdr.laranja{background:var(--laranja);border-color:var(--laranja);color:#fff}
-.btn-hdr.laranja:hover{background:#c94f10}
-.accent-bar{height:3px;background:linear-gradient(90deg,var(--laranja),var(--laranja-vivo))}
-main{max-width:1280px;margin:0 auto;padding:1.5rem 2rem 4rem}
 
-/* Search bar */
-.search-wrap{position:relative;margin-bottom:1.25rem}
-.search-input{width:100%;padding:10px 16px 10px 40px;font-family:'Poppins',sans-serif;font-size:13px;border:1.5px solid var(--cinza-borda);border-radius:10px;background:#fff;color:var(--text-dark);outline:none;transition:.15s}
-.search-input:focus{border-color:var(--azul);box-shadow:0 0 0 3px rgba(0,79,146,.1)}
-.search-icon{position:absolute;left:13px;top:50%;transform:translateY(-50%);color:var(--cinza-muted);pointer-events:none}
-.search-icon svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
-.search-clear{position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--cinza-muted);display:none;font-size:18px;line-height:1;padding:2px}
-.search-clear.visible{display:block}
-.search-results{background:#fff;border:1.5px solid var(--azul);border-radius:10px;padding:1rem 1.25rem;margin-bottom:1.25rem;display:none}
-.search-results.visible{display:block}
-.search-results-title{font-size:12px;font-weight:600;color:var(--azul);margin-bottom:10px}
-.search-result-item{padding:8px 0;border-bottom:1px solid var(--cinza-borda);display:flex;align-items:flex-start;gap:10px}
-.search-result-item:last-child{border-bottom:none;padding-bottom:0}
-.sri-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:4px}
-.sri-info{flex:1}
-.sri-title{font-size:12px;font-weight:600;color:var(--text-dark)}
-.sri-meta{font-size:11px;color:var(--cinza-muted);margin-top:2px}
-.sri-badge{font-size:10px;font-weight:600;padding:1px 8px;border-radius:10px;margin-left:6px;vertical-align:middle}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  font-family:'Poppins',system-ui,sans-serif;
+  background:var(--bg);color:var(--ink);line-height:1.45;
+  -webkit-font-smoothing:antialiased;font-size:14px;
+}
+h1,h2,h3,h4{font-weight:700;letter-spacing:-.2px}
+.scroll-mt{scroll-margin-top:138px}
 
-/* Controls */
-.controls{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;flex-wrap:wrap;gap:12px}
-.nav-group{display:flex;align-items:center;gap:10px}
-.nav-btn{width:38px;height:38px;background:#fff;border:1.5px solid var(--cinza-borda);border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--azul);transition:.15s}
-.nav-btn:hover{border-color:var(--azul);box-shadow:0 0 0 3px rgba(0,79,146,.1)}
-.nav-btn svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
-.month-label{font-size:20px;font-weight:700;color:var(--azul);min-width:210px;text-align:center}
-.today-btn{font-family:'Poppins',sans-serif;font-size:11px;font-weight:700;background:#fff;border:1.5px solid var(--cinza-borda);border-radius:8px;padding:8px 18px;cursor:pointer;color:var(--azul);letter-spacing:.06em;text-transform:uppercase;transition:.15s}
-.today-btn:hover{border-color:var(--azul);background:rgba(0,79,146,.05)}
+/* ---------- TOP NAV (Engehall azul) ---------- */
+.topbar{
+  position:sticky;top:0;z-index:50;
+  background:var(--azul);
+  border-bottom:3px solid var(--laranja);
+  box-shadow:0 4px 18px rgba(0,49,92,.28);
+}
+.topbar-inner{max-width:1240px;margin:0 auto;padding:13px 24px;display:flex;align-items:center;gap:20px}
+.brand{display:flex;align-items:center;gap:12px;flex-shrink:0}
+.hexmark{width:38px;height:38px;flex-shrink:0}
+.brand b{font-family:'Poppins';font-weight:700;font-size:17px;color:#fff;line-height:1.1;letter-spacing:0}
+.brand span{display:block;font-size:10.5px;color:rgba(255,255,255,.7);font-weight:400;letter-spacing:.06em;text-transform:uppercase;margin-top:2px}
 
-/* Filter rows */
-.filter-section{background:#fff;border:1px solid var(--cinza-borda);border-radius:10px;padding:12px 16px;margin-bottom:1.25rem}
-.filter-row{display:flex;align-items:center;flex-wrap:wrap;gap:8px}
-.filter-row+.filter-row{margin-top:8px;padding-top:8px;border-top:1px solid var(--cinza-borda)}
-.filters-label{font-size:10px;font-weight:700;color:var(--cinza-muted);text-transform:uppercase;letter-spacing:.07em;min-width:90px}
-.filter-chip{display:flex;align-items:center;gap:6px;font-family:'Poppins',sans-serif;font-size:11px;font-weight:600;padding:5px 12px;border-radius:20px;border:1.5px solid transparent;cursor:pointer;transition:.15s}
-.filter-chip .dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
-.filter-chip.off{opacity:.3;filter:grayscale(.8)}
+.nav{display:flex;gap:3px;overflow-x:auto;flex:1;padding:2px;scrollbar-width:none}
+.nav::-webkit-scrollbar{display:none}
+.nav a{
+  flex-shrink:0;text-decoration:none;color:rgba(255,255,255,.78);
+  font-size:12.5px;font-weight:600;padding:7px 11px;border-radius:9px;
+  white-space:nowrap;transition:.18s;display:flex;align-items:center;gap:6px;
+}
+.nav a .dot{width:7px;height:7px;border-radius:50%;background:currentColor;opacity:.7}
+.nav a:hover{background:rgba(255,255,255,.13);color:#fff}
+.nav a.active{background:#fff;color:var(--azul);box-shadow:0 2px 8px rgba(0,0,0,.12)}
+.nav a.active .dot{opacity:1}
 
-/* Calendar */
-.week-header{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-bottom:3px}
-.week-header div{font-size:11px;font-weight:700;color:var(--azul);text-align:center;text-transform:uppercase;letter-spacing:.06em;padding:6px 0}
-.week-header div:first-child,.week-header div:last-child{color:var(--cinza-muted)}
-.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px}
-.cell{background:#fff;border:1px solid var(--cinza-borda);border-radius:8px;padding:8px;min-height:100px;cursor:pointer;transition:border-color .15s,box-shadow .15s,transform .1s;position:relative;overflow:hidden}
-.cell::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:transparent;border-radius:8px 8px 0 0}
-.cell.has-tasks::before{background:var(--azul-claro)}
-.cell.has-manual::before{background:var(--laranja)}
-.cell:hover:not(.ghost):not(.weekend-cell){border-color:var(--azul);box-shadow:0 4px 16px rgba(0,79,146,.12);transform:translateY(-1px)}
-.cell.ghost{background:transparent;border-color:transparent;cursor:default;pointer-events:none}
-.cell.weekend-cell{background:#f9fafb;cursor:default}
-.cell.weekend-cell::before{display:none}
-.cell.today-cell{border-color:var(--laranja);border-width:2px;box-shadow:0 0 0 3px rgba(224,92,22,.12)}
-.cell.today-cell::before{background:var(--laranja)}
-.day-num{font-size:13px;font-weight:600;color:var(--cinza-muted);margin-bottom:5px;display:flex;align-items:center;gap:6px}
-.day-num.is-today{color:var(--laranja)}
-.today-badge{font-size:9px;font-weight:700;background:var(--laranja);color:#fff;border-radius:10px;padding:1px 7px;text-transform:uppercase}
-.pills{display:flex;flex-direction:column;gap:3px}
-.pill{font-size:10px;font-weight:500;padding:3px 7px;border-radius:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.4}
-.pill.manual-pill{background:#fff3e0;color:#7c3000;border:1px dashed #E05C16}
-.more-lbl{font-size:10px;font-weight:600;color:var(--azul);margin-top:2px;padding-left:2px}
-.empty-lbl{font-size:10px;color:var(--cinza-muted);margin-top:4px}
+/* ---------- TOGGLE ---------- */
+.toggle-wrap{flex-shrink:0;display:flex;align-items:center;gap:10px}
+.toggle-label{font-size:10.5px;color:rgba(255,255,255,.72);font-weight:500;text-align:right;line-height:1.25}
+.seg{display:inline-flex;background:rgba(255,255,255,.16);padding:4px;border-radius:12px;position:relative}
+.seg button{
+  border:0;background:transparent;cursor:pointer;font-family:'Poppins';font-weight:600;font-size:12.5px;
+  color:rgba(255,255,255,.85);padding:7px 14px;border-radius:9px;position:relative;z-index:2;
+  transition:color .2s;display:flex;align-items:center;gap:6px;
+}
+.seg button.on{color:#fff}
+.seg .glider{position:absolute;top:4px;bottom:4px;border-radius:9px;z-index:1;
+  transition:transform .28s cubic-bezier(.5,1.4,.5,1),background .28s,width .28s;box-shadow:0 3px 9px rgba(0,0,0,.25)}
 
-/* Modal */
-.modal-bg{display:none;position:fixed;inset:0;background:rgba(10,20,40,.55);z-index:100;align-items:center;justify-content:center;padding:24px 16px;backdrop-filter:blur(3px)}
+/* ---------- VIEW BANNER ---------- */
+.viewbanner{max-width:1240px;margin:18px auto 0;padding:0 24px}
+.viewbanner-in{border-radius:14px;padding:13px 18px;display:flex;align-items:center;gap:13px;font-size:13.5px;font-weight:500;transition:.3s;border:1px solid}
+.viewbanner-in .tag{font-family:'Poppins';font-weight:700;font-size:12px;padding:4px 11px;border-radius:999px;color:#fff;flex-shrink:0}
+.viewbanner-in b{font-weight:700}
+
+/* ---------- LAYOUT ---------- */
+.wrap{max-width:1240px;margin:0 auto;padding:8px 24px 80px}
+.section{margin-top:40px}
+.section-head{display:flex;align-items:center;gap:14px;margin-bottom:20px;padding:16px 20px;border-radius:16px;position:relative;overflow:hidden}
+.section-head .bar{position:absolute;left:0;top:0;bottom:0;width:6px}
+.sh-icon{width:42px;height:42px;border-radius:12px;display:grid;place-items:center;flex-shrink:0;color:#fff;font-size:20px}
+.sh-num{font-family:'Poppins';font-weight:700;font-size:12px;opacity:.6;letter-spacing:.5px}
+.section-head h2{font-size:21px;font-weight:700;line-height:1.1}
+.section-head .sh-sub{font-size:12.5px;color:var(--muted);font-weight:400;margin-top:1px}
+.access-pill{margin-left:auto;font-family:'Poppins';font-weight:600;font-size:11px;padding:6px 12px;border-radius:999px;display:flex;align-items:center;gap:6px;flex-shrink:0}
+.access-geral{background:#E0F0E8;color:#1F6B43}
+.access-restrito{background:#E4EEF6;color:var(--azul)}
+
+.block-label{display:flex;align-items:center;gap:9px;margin:22px 4px 12px;font-family:'Poppins';font-weight:600;font-size:12.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.6px}
+.block-label .ln{height:1px;background:var(--line);flex:1}
+.minitag{font-size:10px;font-weight:600;padding:3px 8px;border-radius:6px;letter-spacing:.3px}
+.mt-geral{background:#E0F0E8;color:#1F6B43}
+.mt-restrito{background:#E4EEF6;color:var(--azul)}
+
+.grid{display:grid;gap:14px}
+.g2{grid-template-columns:repeat(2,1fr)}
+.g3{grid-template-columns:repeat(3,1fr)}
+.g4{grid-template-columns:repeat(4,1fr)}
+.span2{grid-column:span 2}
+
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:18px;box-shadow:var(--shadow-sm)}
+.kpi .k-label{font-size:12.5px;color:var(--muted);font-weight:500;display:flex;align-items:center;gap:7px}
+.kpi .k-val{font-family:'Poppins';font-weight:700;font-size:27px;letter-spacing:-.6px;margin-top:8px;line-height:1}
+.kpi .k-sub{font-size:12px;color:var(--muted);margin-top:8px;display:flex;align-items:center;gap:6px}
+.trend{font-weight:600;font-size:12px;padding:2px 7px;border-radius:6px}
+.up{background:#E0F0E8;color:#1F6B43}.down{background:#FBE7E7;color:#C0392B}.flat{background:#EEF1F5;color:#647184}
+.k-ico{width:30px;height:30px;border-radius:9px;display:grid;place-items:center;font-size:15px}
+
+.card h3{font-size:15px;font-weight:600;margin-bottom:3px}
+.card .csub{font-size:12px;color:var(--muted);margin-bottom:6px}
+.click-hint{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:600;color:var(--azul-claro);background:#EAF4FB;padding:3px 9px;border-radius:7px;margin-bottom:12px}
+.chart-box{position:relative;height:230px}
+
+.prow{display:flex;align-items:center;gap:12px;padding:9px 0;border-top:1px solid var(--line)}
+.prow:first-of-type{border-top:0}
+.prow .pname{font-size:13px;font-weight:500;min-width:120px;flex-shrink:0;display:flex;align-items:center;gap:7px}
+.prow .ptrack{flex:1;height:9px;background:#EAEEF3;border-radius:99px;overflow:hidden}
+.prow .pfill{height:100%;border-radius:99px}
+.prow .pval{font-family:'Poppins';font-weight:600;font-size:13px;min-width:46px;text-align:right}
+
+.tbl{width:100%;border-collapse:collapse;font-size:13px}
+.tbl th{text-align:left;font-weight:600;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.5px;padding:0 12px 10px}
+.tbl td{padding:11px 12px;border-top:1px solid var(--line)}
+.tbl tr:hover td{background:#F8FAFC}
+.tbl .num{font-family:'Poppins';font-weight:600;text-align:right}
+.status{font-size:11px;font-weight:600;padding:4px 9px;border-radius:7px;white-space:nowrap}
+.s-andamento{background:#E4EEF6;color:var(--azul)}
+.s-negociando{background:#FBE6DA;color:#B5481A}
+.s-fechando{background:#E0F0E8;color:#1F6B43}
+.s-proposta{background:#ECE8F6;color:#5B57C2}
+.statusbar{height:6px;border-radius:99px;background:#EAEEF3;overflow:hidden;margin-top:5px;width:90px}
+.statusbar i{display:block;height:100%;border-radius:99px}
+.avail{display:inline-block;width:9px;height:9px;border-radius:50%}
+.av-ok{background:#2E7D52}.av-low{background:#E8A13A}.av-out{background:#D85B5B}
+
+.doc-item{display:flex;align-items:center;gap:12px;padding:12px 0;border-top:1px solid var(--line)}
+.doc-item:first-child{border-top:0}
+.doc-item .di-ico{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;flex-shrink:0;font-size:16px}
+.doc-item .di-t{font-size:13.5px;font-weight:600}
+.doc-item .di-s{font-size:11.5px;color:var(--muted)}
+.doc-item .di-go{margin-left:auto;font-size:12px;font-weight:600;color:var(--azul);text-decoration:none;flex-shrink:0}
+
+/* aniversariante do dia — com foto */
+.bday-today{display:flex;align-items:center;gap:14px;padding:14px;border-radius:14px;
+  background:linear-gradient(120deg,#E4EEF6,#FBE6DA);border:1px solid #F3D6C2;margin-bottom:8px}
+.bday-photo{width:58px;height:58px;border-radius:50%;object-fit:cover;border:3px solid #fff;box-shadow:0 4px 12px rgba(0,49,92,.18);flex-shrink:0}
+.bday-photo-fallback{width:58px;height:58px;border-radius:50%;display:none;place-items:center;color:#fff;font-weight:700;font-size:18px;border:3px solid #fff;box-shadow:0 4px 12px rgba(0,49,92,.18);flex-shrink:0}
+.bday-info .bn{font-size:15px;font-weight:700}
+.bday-info .br{font-size:12px;color:var(--muted)}
+.bday-info .bt{font-size:11px;font-weight:700;color:var(--laranja);margin-top:3px;display:inline-flex;align-items:center;gap:5px}
+.bday-empty{text-align:center;color:var(--muted);font-size:13px;padding:22px 16px;background:#F7F9FB;border:1px dashed var(--line);border-radius:12px}
+.absence{display:flex;align-items:center;gap:11px;padding:10px 0;border-top:1px solid var(--line)}
+.absence:first-child{border-top:0}
+.ava{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;color:#fff;font-weight:700;font-family:'Poppins';font-size:13px;flex-shrink:0}
+.ab-date{margin-left:auto;font-size:12px;font-weight:600;color:var(--muted)}
+/* comunicados gerais */
+.comm-item{display:flex;gap:13px;padding:14px 0;border-top:1px solid var(--line)}
+.comm-item:first-of-type{border-top:0}
+.comm-pin{width:32px;height:32px;border-radius:10px;display:grid;place-items:center;color:#fff;font-size:14px;flex-shrink:0}
+.comm-head{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:600}
+.comm-new{font-size:10px;font-weight:700;background:#E0F0E8;color:#1F6B43;padding:2px 7px;border-radius:6px}
+.comm-text{font-size:13px;color:var(--muted);margin:4px 0 6px;line-height:1.5}
+.comm-date{font-size:11px;color:var(--muted);font-weight:600}
+
+[hidden]{display:none !important}
+
+/* ---------- MODAL DRILL-DOWN ---------- */
+.modal-bg{position:fixed;inset:0;z-index:100;background:rgba(15,34,51,.55);backdrop-filter:blur(3px);
+  display:none;align-items:center;justify-content:center;padding:24px}
 .modal-bg.open{display:flex}
-.modal{background:#fff;border-radius:14px;width:100%;max-width:580px;max-height:87vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.25);animation:popIn .2s cubic-bezier(.34,1.56,.64,1)}
-@keyframes popIn{from{opacity:0;transform:scale(.94) translateY(10px)}to{opacity:1;transform:scale(1) translateY(0)}}
-.modal-header{background:var(--azul);padding:1.25rem 1.5rem 1rem;border-radius:14px 14px 0 0;display:flex;align-items:flex-start;justify-content:space-between;gap:12px;position:sticky;top:0;z-index:2}
-.modal-date{font-size:15px;font-weight:700;color:#fff;text-transform:capitalize}
-.modal-date-sub{font-size:11px;color:rgba(255,255,255,.6);margin-top:2px}
-.modal-close{width:30px;height:30px;flex-shrink:0;background:rgba(255,255,255,.15);border:none;border-radius:50%;cursor:pointer;color:rgba(255,255,255,.8);font-size:18px;font-family:'Poppins',sans-serif;display:flex;align-items:center;justify-content:center;transition:.15s}
-.modal-close:hover{background:rgba(255,255,255,.28);color:#fff}
-.modal-orange-bar{height:3px;background:linear-gradient(90deg,var(--laranja),var(--laranja-vivo))}
-.modal-body{padding:1.25rem 1.5rem 1.5rem;display:flex;flex-direction:column;gap:10px}
-.task-card{border:1px solid var(--cinza-borda);border-radius:10px;overflow:hidden;transition:box-shadow .15s}
-.task-card:hover{box-shadow:0 2px 10px rgba(0,79,146,.1)}
-.task-card.manual-card{border-color:#fbbf24;border-style:dashed}
-.task-card-header{display:flex;align-items:center;gap:10px;padding:11px 14px;cursor:pointer;background:#fafbfd;transition:background .15s}
-.task-card-header:hover{background:#f0f4fa}
-.task-card.manual-card .task-card-header{background:#fffbeb}
-.task-left-bar{width:4px;height:36px;border-radius:4px;flex-shrink:0}
-.task-title{font-size:13px;font-weight:600;color:var(--text-dark);flex:1;line-height:1.3}
-.task-badge{font-size:10px;font-weight:600;padding:2px 9px;border-radius:10px;white-space:nowrap}
-.task-chevron{color:var(--cinza-muted);transition:transform .2s;flex-shrink:0}
-.task-chevron svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round;display:block}
-.task-card.expanded .task-chevron{transform:rotate(180deg)}
-.task-card-body{display:none;padding:0 14px 14px 28px;border-top:1px solid var(--cinza-borda);background:#fff}
-.task-card.expanded .task-card-body{display:block}
-.task-card.manual-card .task-card-body{background:#fffbeb}
-.task-meta-row{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}
-.meta-chip{display:flex;align-items:center;gap:5px;font-size:11px;font-weight:500;color:var(--cinza-text);background:#f0f4fa;border:1px solid #dde6f5;border-radius:20px;padding:4px 11px}
-.meta-chip svg{width:12px;height:12px;stroke:var(--azul);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
-.task-desc{font-size:12px;color:var(--cinza-text);line-height:1.75}
-.delete-btn{margin-top:10px;font-family:'Poppins',sans-serif;font-size:11px;font-weight:600;color:#dc2626;background:#fef2f2;border:1px solid #fecaca;border-radius:6px;padding:5px 12px;cursor:pointer;transition:.15s}
-.delete-btn:hover{background:#fee2e2}
-.process-btn{display:inline-flex;align-items:center;gap:7px;margin-top:12px;font-family:'Poppins',sans-serif;font-size:12px;font-weight:600;color:#fff;background:var(--azul);border:none;border-radius:8px;padding:8px 16px;cursor:pointer;text-decoration:none;transition:.15s}
-.process-btn:hover{background:var(--azul-claro);transform:translateY(-1px);box-shadow:0 4px 12px rgba(0,79,146,.25)}
-.process-btn svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
+.modal{background:#fff;border-radius:20px;width:100%;max-width:680px;max-height:88vh;overflow:auto;box-shadow:0 24px 60px rgba(0,49,92,.3)}
+.modal-head{display:flex;align-items:flex-start;gap:14px;padding:22px 24px 16px;border-bottom:1px solid var(--line);position:sticky;top:0;background:#fff;z-index:2}
+.modal-eyebrow{font-size:11px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:var(--laranja)}
+.modal-head h3{font-size:19px;font-weight:700;margin-top:3px}
+.modal-head .ms{font-size:12.5px;color:var(--muted);margin-top:2px}
+.modal-x{margin-left:auto;border:0;background:#F2F5F8;width:34px;height:34px;border-radius:10px;cursor:pointer;font-size:15px;color:var(--muted);flex-shrink:0}
+.modal-x:hover{background:#E6EBF1;color:var(--ink)}
+.modal-body{padding:20px 24px 24px}
+.modal-chartbox{position:relative;height:240px;margin-bottom:18px}
+.var-up{color:var(--laranja);font-weight:600}
+.var-down{color:var(--azul-claro);font-weight:600}
+.modal-total{display:flex;justify-content:space-between;align-items:center;background:#F7F9FB;border-radius:12px;padding:12px 16px;margin-bottom:16px;font-size:13px}
+.modal-total b{font-family:'Poppins';font-weight:700;font-size:18px}
 
-/* Add task modal */
-.add-modal-bg{display:none;position:fixed;inset:0;background:rgba(10,20,40,.55);z-index:200;align-items:center;justify-content:center;padding:24px 16px;backdrop-filter:blur(3px)}
-.add-modal-bg.open{display:flex}
-.add-modal{background:#fff;border-radius:14px;width:100%;max-width:480px;box-shadow:0 20px 60px rgba(0,0,0,.25);animation:popIn .2s cubic-bezier(.34,1.56,.64,1)}
-.add-modal-header{background:var(--laranja);padding:1.25rem 1.5rem 1rem;border-radius:14px 14px 0 0;display:flex;align-items:center;justify-content:space-between}
-.add-modal-title{font-size:15px;font-weight:700;color:#fff}
-.add-modal-body{padding:1.5rem}
-.form-group{margin-bottom:1rem}
-.form-label{display:block;font-size:12px;font-weight:600;color:var(--text-dark);margin-bottom:5px}
-.form-input,.form-textarea,.form-select{width:100%;font-family:'Poppins',sans-serif;font-size:13px;border:1.5px solid var(--cinza-borda);border-radius:8px;padding:9px 12px;color:var(--text-dark);outline:none;transition:.15s;background:#fff}
-.form-input:focus,.form-textarea:focus,.form-select:focus{border-color:var(--azul);box-shadow:0 0 0 3px rgba(0,79,146,.1)}
-.form-textarea{resize:vertical;min-height:80px}
-.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.form-actions{display:flex;gap:10px;margin-top:1.25rem}
-.btn-save{flex:1;font-family:'Poppins',sans-serif;font-size:13px;font-weight:600;background:var(--laranja);color:#fff;border:none;border-radius:8px;padding:10px;cursor:pointer;transition:.15s}
-.btn-save:hover{background:#c94f10}
-.btn-cancel{font-family:'Poppins',sans-serif;font-size:13px;font-weight:500;background:var(--cinza-bg);color:var(--cinza-text);border:1.5px solid var(--cinza-borda);border-radius:8px;padding:10px 20px;cursor:pointer;transition:.15s}
-.btn-cancel:hover{background:var(--cinza-borda)}
+footer{max-width:1240px;margin:0 auto;padding:30px 24px 50px;color:var(--muted);font-size:12px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;border-top:1px solid var(--line)}
 
-/* Role badges */
-.role-coord{background:#e0f2fe;color:#0c4a6e}
-.role-assist{background:#f0fdf4;color:#14532d}
-.role-estag{background:#faf5ff;color:#581c87}
-.role-todos{background:#f1f5f9;color:#334155}
-
-.panel{margin-top:2.5rem}
-.panel-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;flex-wrap:wrap;gap:8px}
-.panel-title{font-size:16px;font-weight:700;color:var(--azul);display:flex;align-items:center;gap:10px}
-.panel-title svg{width:18px;height:18px;stroke:var(--azul);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
-.panel-legend{display:flex;gap:12px;flex-wrap:wrap}
-.pl-item{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--cinza-text)}
-.pl-dot{width:8px;height:8px;border-radius:50%}
-.panel-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:10px}
-.dc{background:#fff;border:1px solid var(--cinza-borda);border-radius:12px;padding:.9rem 1.1rem;display:flex;align-items:flex-start;gap:12px;transition:box-shadow .15s,transform .1s}
-.dc:hover{box-shadow:0 4px 16px rgba(0,79,146,.1);transform:translateY(-1px)}
-.dc.urgente{border-color:#fca5a5;border-left:4px solid #dc2626}
-.dc.proximo{border-color:#fcd34d;border-left:4px solid #b45309}
-.dc.ok{border-color:#86efac;border-left:4px solid #16a34a}
-.dc.neutro{border-left:4px solid var(--azul-claro)}
-.dc-icon{width:38px;height:38px;border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.dc-icon svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
-.urgente .dc-icon{background:#fee2e2;color:#dc2626}
-.proximo .dc-icon{background:#fef9c3;color:#b45309}
-.ok .dc-icon{background:#dcfce7;color:#16a34a}
-.neutro .dc-icon{background:#dbeafe;color:#1d4ed8}
-.dc-body{flex:1;min-width:0}
-.dc-tag{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-bottom:2px}
-.urgente .dc-tag{color:#dc2626}.proximo .dc-tag{color:#b45309}.ok .dc-tag{color:#16a34a}.neutro .dc-tag{color:#1d4ed8}
-.dc-name{font-size:13px;font-weight:600;color:var(--text-dark);line-height:1.3;margin-bottom:3px}
-.dc-date{font-size:11px;color:var(--cinza-text)}
-.dc-resp{font-size:10px;color:var(--cinza-muted);margin-top:2px}
-.dc-right{display:flex;flex-direction:column;align-items:flex-end;flex-shrink:0}
-.dc-days-num{font-size:24px;font-weight:700;line-height:1}
-.urgente .dc-days-num{color:#dc2626}.proximo .dc-days-num{color:#b45309}.ok .dc-days-num{color:#16a34a}.neutro .dc-days-num{color:#1d4ed8}
-.dc-days-lbl{font-size:9px;font-weight:600;color:var(--cinza-muted);text-transform:uppercase;letter-spacing:.04em;text-align:right}
-@media print{.hdr-btns,.controls,.filter-section,.search-wrap{display:none}.modal-bg,.add-modal-bg{display:none!important}header{position:static;box-shadow:none}.accent-bar{display:none}.cell{break-inside:avoid;min-height:80px}}
-@media(max-width:700px){main{padding:1rem 1rem 3rem}.header-inner{padding:0 1rem}.month-label{font-size:15px;min-width:150px}.cell{min-height:70px;padding:5px}.day-num{font-size:11px}.pill{font-size:9px}.week-header div{font-size:9px}.form-row{grid-template-columns:1fr}}
+@media(max-width:880px){
+  .topbar-inner{flex-wrap:wrap;gap:12px}
+  .nav{order:3;width:100%}
+  .toggle-wrap .toggle-label{display:none}
+  .g4{grid-template-columns:repeat(2,1fr)}
+  .g3,.g2{grid-template-columns:1fr}
+  .span2{grid-column:span 1}
+  .scroll-mt{scroll-margin-top:186px}
+  .access-pill{display:none}
+  .prow .pname{min-width:90px}
+}
 </style>
 </head>
 <body>
-<header>
-  <div class="header-inner">
-    <div class="header-brand">
-      <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
-        <polygon points="20,3 36,12 36,28 20,37 4,28 4,12" fill="#0079D2" opacity=".85"/>
-        <polygon points="20,3 36,12 36,28 20,37 4,28 4,12" fill="none" stroke="rgba(255,255,255,.2)" stroke-width="1.2"/>
-        <rect x="13" y="14" width="8" height="8" fill="white" opacity=".92"/>
-        <rect x="19" y="19" width="8" height="8" fill="#E05C16"/>
+
+<!-- ===================== TOP NAV ===================== -->
+<header class="topbar">
+  <div class="topbar-inner">
+    <div class="brand">
+      <svg class="hexmark" viewBox="0 0 40 40" aria-label="Engehall">
+        <polygon points="20,2 35,11 35,29 20,38 5,29 5,11" fill="#004F92"/>
+        <polygon points="20,9.5 29.5,15 29.5,25 20,30.5 10.5,25 10.5,15" fill="#fff"/>
+        <polygon points="20,12 27,16 20,20 13,16" fill="#FA9E00"/>
+        <polygon points="13,16 20,20 20,28 13,24" fill="#0079D2"/>
+        <polygon points="27,16 20,20 20,28 27,24" fill="#004F92"/>
       </svg>
-      <div>
-        <div class="brand-name">EngeHall</div>
-        <div class="brand-sub">Calendário Financeiro · Elétrica & Tech</div>
-      </div>
+      <div><b>Engehall Treinamentos</b><span>Painel Unificado</span></div>
     </div>
-    <div class="hdr-btns">
-      <button class="btn-hdr laranja" onclick="openAddModal()">
-        <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="8" y1="2" x2="8" y2="14"/><line x1="2" y1="8" x2="14" y2="8"/></svg>
-        Nova tarefa
-      </button>
-      <button class="btn-hdr" onclick="window.print()">
-        <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5V2h8v3M4 11H2V6h12v5h-2M4 9h8v5H4z"/></svg>
-        Imprimir
-      </button>
+    <nav class="nav" id="nav"></nav>
+    <div class="toggle-wrap">
+      <div class="toggle-label">Você está<br>vendo como:</div>
+      <div class="seg" id="seg">
+        <span class="glider" id="glider"></span>
+        <button data-view="lideranca" class="on" onclick="setView('lideranca')">★ Lideranças</button>
+        <button data-view="operacao" onclick="setView('operacao')">◐ Operação</button>
+      </div>
     </div>
   </div>
 </header>
-<div class="accent-bar"></div>
 
-<main>
-  <!-- Search -->
-  <div class="search-wrap">
-    <span class="search-icon"><svg viewBox="0 0 16 16"><circle cx="7" cy="7" r="5"/><line x1="11" y1="11" x2="14" y2="14"/></svg></span>
-    <input class="search-input" id="search-input" type="text" placeholder="Pesquisar atividade... (ex: ISS, pagar.me, NF, conciliação)" oninput="doSearch(this.value)">
-    <button class="search-clear" id="search-clear" onclick="clearSearch()">×</button>
-  </div>
-  <div class="search-results" id="search-results">
-    <div class="search-results-title" id="search-results-title"></div>
-    <div id="search-results-body"></div>
-  </div>
+<div class="viewbanner"><div class="viewbanner-in" id="banner"></div></div>
 
-  <!-- Nav -->
-  <div class="controls">
-    <div class="nav-group">
-      <button class="nav-btn" onclick="changeMonth(-1)"><svg viewBox="0 0 16 16"><polyline points="10 12 6 8 10 4"/></svg></button>
-      <div class="month-label" id="month-label"></div>
-      <button class="nav-btn" onclick="changeMonth(1)"><svg viewBox="0 0 16 16"><polyline points="6 4 10 8 6 12"/></svg></button>
-    </div>
-    <button class="today-btn" onclick="goToday()">Hoje</button>
-  </div>
+<div class="wrap">
 
-  <!-- Filters -->
-  <div class="filter-section">
-    <div class="filter-row">
-      <span class="filters-label">Empresa</span>
-      <div id="filters-emp" style="display:flex;flex-wrap:wrap;gap:6px;"></div>
+<!-- ============================================================= -->
+<!-- 01 · VISÃO GERAL (geral) — topo                               -->
+<!-- ============================================================= -->
+<section class="section scroll-mt" id="visao" data-section data-access="geral">
+  <div class="section-head" style="background:var(--b-visao)" data-hide-on="operacao">
+    <span class="bar" style="background:var(--c-visao)"></span>
+    <div class="sh-icon" style="background:var(--c-visao)">🧭</div>
+    <div><div class="sh-num" style="color:var(--c-visao)">ÁREA 01</div><h2>Visão Geral</h2>
+      <div class="sh-sub">Integração da equipe e documentos do dia a dia</div></div>
+    <span class="access-pill access-geral">👁 Geral · todo o time</span>
+  </div>
+  <div class="grid g2" data-block data-access="geral">
+    <div class="card">
+      <h3>Central de documentos</h3><div class="csub" style="margin-bottom:14px">Acesso rápido para todo o time</div>
+      <div class="doc-item"><span class="di-ico" style="background:var(--b-visao)">👥</span><div><div class="di-t">Equipe &amp; funções</div><div class="di-s">Quem faz o quê — versão simples</div></div><a class="di-go" href="#">Abrir →</a></div>
+      <div class="doc-item"><span class="di-ico" style="background:var(--b-visao)">✉️</span><div><div class="di-t">Lista de e-mails por setor</div><div class="di-s">Contatos internos</div></div><a class="di-go" href="#">Abrir →</a></div>
+      <div class="doc-item"><span class="di-ico" style="background:var(--b-visao)">✅</span><div><div class="di-t">Política de Qualidade</div><div class="di-s">Documento oficial</div></div><a class="di-go" href="#">Abrir →</a></div>
+      <div class="doc-item"><span class="di-ico" style="background:var(--b-visao)">📘</span><div><div class="di-t">Manual do Funcionário</div><div class="di-s">Onboarding e regras</div></div><a class="di-go" href="#">Abrir →</a></div>
     </div>
-    <div class="filter-row">
-      <span class="filters-label">Cadência</span>
-      <div id="filters-cat" style="display:flex;flex-wrap:wrap;gap:6px;"></div>
-    </div>
-    <div class="filter-row">
-      <span class="filters-label">Responsável</span>
-      <div id="filters-role" style="display:flex;flex-wrap:wrap;gap:6px;"></div>
+    <div class="card">
+      <h3>Pessoas</h3><div class="csub" style="margin-bottom:14px">Aniversariante do dia &amp; ausências</div>
+      <div class="block-label" style="margin:4px 0 8px;font-size:11px">🎂 Aniversariante de hoje</div>
+      <div id="bday-today"></div>
+      <div class="block-label" style="margin:18px 0 6px;font-size:11px">🌴 Férias / Day Off hoje</div>
+      <div class="absence"><span class="ava" style="background:var(--c-dp)">JP</span><div><div class="di-t">João Pedro</div><div class="di-s">Férias · até 24/06</div></div><span class="ab-date">🌴</span></div>
+      <div class="absence"><span class="ava" style="background:var(--c-suporte)">AT</span><div><div class="di-t">Ana Torres</div><div class="di-s">Day Off</div></div><span class="ab-date">Hoje</span></div>
     </div>
   </div>
-
-  <div class="week-header">
-    <div>Dom</div><div>Seg</div><div>Ter</div><div>Qua</div><div>Qui</div><div>Sex</div><div>Sáb</div>
-  </div>
-  <div class="cal-grid" id="grid"></div>
-
-  <!-- Painel de próximos vencimentos -->
-  <div class="panel">
-    <div class="panel-header">
-      <div class="panel-title">
-        <svg viewBox="0 0 16 16"><rect x="1" y="3" width="14" height="11" rx="2"/><path d="M1 7h14M5 1v4M11 1v4"/></svg>
-        Próximos vencimentos
-      </div>
-      <div class="panel-legend">
-        <span class="pl-item"><span class="pl-dot" style="background:#dc2626"></span>Vence em até 7 dias</span>
-        <span class="pl-item"><span class="pl-dot" style="background:#b45309"></span>Vence em até 15 dias</span>
-        <span class="pl-item"><span class="pl-dot" style="background:#16a34a"></span>Vence em até 30 dias</span>
-        <span class="pl-item"><span class="pl-dot" style="background:#1d4ed8"></span>Além de 30 dias</span>
+  <div class="card" data-block data-access="geral" style="margin-top:14px">
+    <h3>📣 Comunicados gerais</h3><div class="csub" style="margin-bottom:14px">Avisos para todo o time</div>
+    <div class="comm-item">
+      <span class="comm-pin" style="background:var(--c-visao)">★</span>
+      <div>
+        <div class="comm-head">Nova coordenação comercial <span class="comm-new">Novo</span></div>
+        <p class="comm-text">Neste mês, Danila assumiu todas as nossas frentes comerciais, se tornando coordenadora do grupo. Desejamos muito sucesso nesta empreitada! 🎉</p>
+        <span class="comm-date">Junho · 2026</span>
       </div>
     </div>
-    <div class="panel-grid" id="deadlines-panel"></div>
+    <div class="comm-item">
+      <span class="comm-pin" style="background:var(--laranja)">📌</span>
+      <div>
+        <div class="comm-head">Confraternização do semestre</div>
+        <p class="comm-text">Save the date: nosso encontro de meio de ano será no dia 12/07. Mais detalhes em breve com o time de Processos.</p>
+        <span class="comm-date">Junho · 2026</span>
+      </div>
+    </div>
   </div>
-</main>
+</section>
 
-<!-- Day modal -->
-<div class="modal-bg" id="modal-bg" onclick="bgClick(event)">
+<!-- ============================================================= -->
+<!-- 02 · COMERCIAL (mixed; Top 10 = geral)                        -->
+<!-- ============================================================= -->
+<section class="section scroll-mt" id="comercial" data-section data-access="mixed">
+  <div class="section-head" style="background:var(--b-comercial)">
+    <span class="bar" style="background:var(--c-comercial)"></span>
+    <div class="sh-icon" style="background:var(--c-comercial)">🤝</div>
+    <div><div class="sh-num" style="color:var(--c-comercial)">ÁREA 02</div><h2>Comercial</h2>
+      <div class="sh-sub">PJ, PF, conversão, metas e pipeline</div></div>
+    <span class="access-pill access-restrito" data-pill="lideranca">🔒 Misto</span>
+    <span class="access-pill access-geral" data-pill="operacao" hidden>👁 Geral · recorte</span>
+  </div>
+
+  <div class="grid g4" data-block data-access="lideranca">
+    <div class="card kpi span2"><div class="k-label"><span class="k-ico" style="background:var(--b-comercial)">💵</span>Faturamento total</div><div class="k-val">R$ 1,42 mi</div><div class="k-sub"><span class="trend up">▲ 11%</span> · segmentável por empresa nova × antiga × CNPJ novo</div></div>
+    <div class="card kpi"><div class="k-label">Taxa de conversão</div><div class="k-val">24,6%</div><div class="k-sub">leads → vendas</div></div>
+    <div class="card kpi"><div class="k-label">Conversão de orçamentos</div><div class="k-val">44,8%</div><div class="k-sub">orçamentos → vendas</div></div>
+  </div>
+
+  <div class="block-label" data-block data-access="lideranca">PJ — Pessoa Jurídica <span class="minitag mt-restrito">🔒 Lideranças</span><span class="ln"></span></div>
+  <div class="grid g4" data-block data-access="lideranca">
+    <div class="card kpi"><div class="k-label">Faturamento PJ</div><div class="k-val" style="font-size:24px">R$ 980 mil</div><div class="k-sub">por vendedora · por curso</div></div>
+    <div class="card kpi"><div class="k-label">Ticket médio PJ</div><div class="k-val" style="font-size:24px">R$ 8,4k</div><div class="k-sub"><span class="trend up">▲ 4%</span></div></div>
+    <div class="card kpi"><div class="k-label">Orçamentos enviados</div><div class="k-val" style="font-size:24px">214</div><div class="k-sub">origem: Bolt</div></div>
+    <div class="card kpi"><div class="k-label">Taxa de conversão PJ</div><div class="k-val" style="font-size:24px">44,8%</div><div class="k-sub">96 vendas</div></div>
+  </div>
+  <div class="grid g2" data-block data-access="lideranca" style="margin-top:14px">
+    <div class="card">
+      <h3>Faturamento PJ × PF</h3><span class="click-hint">🔍 clique nas barras para detalhar</span>
+      <div class="chart-box"><canvas id="ch_pjpf"></canvas></div>
+    </div>
+    <div class="card">
+      <h3>Origem das conversões</h3><span class="click-hint">🔍 clique nas fatias para detalhar</span>
+      <div class="chart-box"><canvas id="ch_origem"></canvas></div>
+    </div>
+  </div>
+
+  <div class="block-label" data-block data-access="lideranca">PF — Pessoa Física <span class="minitag mt-restrito">🔒 Lideranças</span><span class="ln"></span></div>
+  <div class="grid g4" data-block data-access="lideranca">
+    <div class="card kpi"><div class="k-label">Faturamento PF</div><div class="k-val" style="font-size:24px">R$ 442 mil</div><div class="k-sub">origem: Pagar.me</div></div>
+    <div class="card kpi"><div class="k-label">Ticket médio PF</div><div class="k-val" style="font-size:24px">R$ 1,2k</div><div class="k-sub">por produto</div></div>
+    <div class="card kpi"><div class="k-label">Taxa de conversão PF</div><div class="k-val" style="font-size:24px">19,7%</div><div class="k-sub">368 vendas · 1.870 leads</div></div>
+    <div class="card kpi"><div class="k-label">Vendas PF</div><div class="k-val" style="font-size:24px">368</div><div class="k-sub">origem: Bolt</div></div>
+  </div>
+
+  <div class="block-label" data-block data-access="lideranca">Metas por vendedora <span class="minitag mt-restrito">🔒 Lideranças</span><span class="ln"></span></div>
+  <div class="grid g2" data-block data-access="lideranca">
+    <div class="card">
+      <h3>% da meta alcançada</h3><div class="csub" style="margin-bottom:14px">Mês atual · origem: Planilha de vendas</div>
+      <div class="prow"><span class="pname">Marina</span><div class="ptrack"><div class="pfill" style="width:100%;background:#2E7D52"></div></div><span class="pval">112%</span></div>
+      <div class="prow"><span class="pname">Júlia</span><div class="ptrack"><div class="pfill" style="width:89%;background:var(--c-comercial)"></div></div><span class="pval">89%</span></div>
+      <div class="prow"><span class="pname">Beatriz</span><div class="ptrack"><div class="pfill" style="width:74%;background:var(--c-comercial)"></div></div><span class="pval">74%</span></div>
+      <div class="prow"><span class="pname">Carla</span><div class="ptrack"><div class="pfill" style="width:58%;background:#E8A13A"></div></div><span class="pval">58%</span></div>
+    </div>
+    <div class="card">
+      <h3>Vendas por vendedora</h3><span class="click-hint">🔍 clique para ver o histórico</span>
+      <div class="chart-box"><canvas id="ch_meta"></canvas></div>
+    </div>
+  </div>
+
+  <div class="block-label" data-block data-access="geral">Top 10 negociações em curso <span class="minitag mt-geral">👁 Visível p/ todos</span><span class="ln"></span></div>
+  <div class="card" data-block data-access="geral" style="padding:8px 8px 4px">
+    <table class="tbl">
+      <thead><tr><th>Negociação</th><th>Vendedora</th><th class="num">Valor</th><th>Status / andamento</th></tr></thead>
+      <tbody>
+        <tr><td><b>Grupo Vértice</b> · 4 turmas</td><td>Marina</td><td class="num">R$ 84k</td><td><span class="status s-fechando">Fechando</span><div class="statusbar"><i style="width:90%;background:#2E7D52"></i></div></td></tr>
+        <tr><td><b>Indústria Nova Era</b></td><td>Júlia</td><td class="num">R$ 61k</td><td><span class="status s-andamento">Em andamento</span><div class="statusbar"><i style="width:55%;background:var(--azul-claro)"></i></div></td></tr>
+        <tr><td><b>Rede Sul Logística</b></td><td>Beatriz</td><td class="num">R$ 52k</td><td><span class="status s-proposta">Proposta enviada</span><div class="statusbar"><i style="width:40%;background:#5B57C2"></i></div></td></tr>
+        <tr><td><b>Construtora Pilar</b></td><td>Marina</td><td class="num">R$ 47k</td><td><span class="status s-negociando">Negociando</span><div class="statusbar"><i style="width:65%;background:#E8A13A"></i></div></td></tr>
+        <tr><td><b>TechFlow Sistemas</b></td><td>Carla</td><td class="num">R$ 39k</td><td><span class="status s-andamento">Em andamento</span><div class="statusbar"><i style="width:50%;background:var(--azul-claro)"></i></div></td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ============================================================= -->
+<!-- 03 · FINANCEIRO (restrito)                                    -->
+<!-- ============================================================= -->
+<section class="section scroll-mt" id="financeiro" data-section data-access="lideranca">
+  <div class="section-head" style="background:var(--b-financeiro)">
+    <span class="bar" style="background:var(--c-financeiro)"></span>
+    <div class="sh-icon" style="background:var(--c-financeiro)">💰</div>
+    <div><div class="sh-num" style="color:var(--c-financeiro)">ÁREA 03</div><h2>Financeiro</h2>
+      <div class="sh-sub">Notas, contas a pagar/receber e saúde financeira</div></div>
+    <span class="access-pill access-restrito">🔒 Restrito · Lideranças</span>
+  </div>
+  <div class="grid g4" data-block data-access="lideranca">
+    <div class="card kpi"><div class="k-label"><span class="k-ico" style="background:var(--b-financeiro)">🏦</span>Caixa disponível</div><div class="k-val">R$ 1,84 mi</div><div class="k-sub"><span class="trend up">▲ 6,2%</span> vs. mês anterior</div></div>
+    <div class="card kpi"><div class="k-label"><span class="k-ico" style="background:var(--b-financeiro)">📥</span>Total a receber</div><div class="k-val">R$ 742 mil</div><div class="k-sub"><span class="trend flat">● estável</span> 312 títulos</div></div>
+    <div class="card kpi"><div class="k-label"><span class="k-ico" style="background:var(--b-financeiro)">📤</span>Despesas totais</div><div class="k-val">R$ 968 mil</div><div class="k-sub"><span class="trend down">▲ 3,1%</span> acima do previsto</div></div>
+    <div class="card kpi"><div class="k-label"><span class="k-ico" style="background:var(--b-financeiro)">📈</span>Lucro (mês)</div><div class="k-val">R$ 286 mil</div><div class="k-sub"><span class="trend up">▲ 9,4%</span> margem 22,8%</div></div>
+  </div>
+  <div class="grid g3" data-block data-access="lideranca" style="margin-top:14px">
+    <div class="card span2">
+      <h3>Fluxo de caixa</h3><span class="click-hint">🔍 clique nas linhas para detalhar</span>
+      <div class="chart-box"><canvas id="ch_fluxo"></canvas></div>
+    </div>
+    <div class="card">
+      <h3>Despesas — fixas × variáveis</h3><span class="click-hint">🔍 clique para ver cada gasto</span>
+      <div class="chart-box"><canvas id="ch_despesas"></canvas></div>
+    </div>
+  </div>
+  <div class="grid g3" data-block data-access="lideranca" style="margin-top:14px">
+    <div class="card">
+      <h3>Notas fiscais</h3><div class="csub" style="margin-bottom:12px">Origem: Bolt</div>
+      <div class="prow"><span class="pname">Emitidas</span><div class="ptrack"><div class="pfill" style="width:88%;background:var(--c-financeiro)"></div></div><span class="pval">1.284</span></div>
+      <div class="prow"><span class="pname">Solicitações</span><div class="ptrack"><div class="pfill" style="width:70%;background:var(--c-financeiro)"></div></div><span class="pval">1.022</span></div>
+      <div class="prow"><span class="pname">Pendentes</span><div class="ptrack"><div class="pfill" style="width:14%;background:#E8A13A"></div></div><span class="pval">47</span></div>
+    </div>
+    <div class="card">
+      <h3>Contas a receber</h3><div class="csub" style="margin-bottom:12px">Origem: Banco Itaú</div>
+      <div class="prow"><span class="pname">Inadimplência</span><div class="ptrack"><div class="pfill" style="width:31%;background:#D85B5B"></div></div><span class="pval">3,1%</span></div>
+      <div class="prow"><span class="pname">Valor inadimplente</span><div class="ptrack"><div class="pfill" style="width:23%;background:#D85B5B"></div></div><span class="pval">R$ 23k</span></div>
+      <div class="prow"><span class="pname">Cancel. + descontos</span><div class="ptrack"><div class="pfill" style="width:18%;background:#E8A13A"></div></div><span class="pval">R$ 14k</span></div>
+    </div>
+    <div class="card">
+      <h3>Saúde financeira</h3><div class="csub" style="margin-bottom:12px">Margem média de contribuição</div>
+      <div class="prow"><span class="pname">Pagto. no prazo</span><div class="ptrack"><div class="pfill" style="width:94%;background:#2E7D52"></div></div><span class="pval">94%</span></div>
+      <div class="prow"><span class="pname">Margem online</span><div class="ptrack"><div class="pfill" style="width:61%;background:var(--c-financeiro)"></div></div><span class="pval">61%</span></div>
+      <div class="prow"><span class="pname">Margem presencial</span><div class="ptrack"><div class="pfill" style="width:48%;background:var(--c-financeiro)"></div></div><span class="pval">48%</span></div>
+    </div>
+  </div>
+  <div class="block-label" data-block data-access="lideranca">Indicadores consolidados <span class="ln"></span></div>
+  <div class="grid g4" data-block data-access="lideranca">
+    <div class="card kpi"><div class="k-label">EBITDA</div><div class="k-val" style="font-size:23px">R$ 341 mil</div></div>
+    <div class="card kpi"><div class="k-label">DRE — resultado</div><div class="k-val" style="font-size:23px">+ R$ 286 mil</div></div>
+    <div class="card kpi"><div class="k-label">Fluxo de caixa proj.</div><div class="k-val" style="font-size:23px">R$ 2,1 mi</div></div>
+    <div class="card kpi"><div class="k-label">Notas pendentes</div><div class="k-val" style="font-size:23px">47</div></div>
+  </div>
+</section>
+
+<!-- ============================================================= -->
+<!-- 04 · MARKETING (restrito)                                     -->
+<!-- ============================================================= -->
+<section class="section scroll-mt" id="marketing" data-section data-access="lideranca">
+  <div class="section-head" style="background:var(--b-marketing)">
+    <span class="bar" style="background:var(--c-marketing)"></span>
+    <div class="sh-icon" style="background:var(--c-marketing)">📣</div>
+    <div><div class="sh-num" style="color:var(--c-marketing)">ÁREA 04</div><h2>Marketing</h2>
+      <div class="sh-sub">Leads, aquisição e performance de site</div></div>
+    <span class="access-pill access-restrito">🔒 Restrito · Lideranças</span>
+  </div>
+  <div class="grid g4" data-block data-access="lideranca">
+    <div class="card kpi"><div class="k-label">Leads no mês</div><div class="k-val">3.740</div><div class="k-sub"><span class="trend up">▲ 8%</span></div></div>
+    <div class="card kpi"><div class="k-label">CPL</div><div class="k-val">R$ 12,80</div><div class="k-sub"><span class="trend up">▼ 6%</span> melhorou</div></div>
+    <div class="card kpi"><div class="k-label">MQL</div><div class="k-val">612</div><div class="k-sub">por nº de colaboradores</div></div>
+    <div class="card kpi"><div class="k-label">ROAS</div><div class="k-val">4,3×</div><div class="k-sub"><span class="trend up">▲ 0,4</span></div></div>
+  </div>
+  <div class="grid g3" data-block data-access="lideranca" style="margin-top:14px">
+    <div class="card span2">
+      <h3>Leads por canal</h3><span class="click-hint">🔍 clique nas barras para detalhar</span>
+      <div class="chart-box"><canvas id="ch_canal"></canvas></div>
+    </div>
+    <div class="card">
+      <h3>Site &amp; performance</h3><div class="csub" style="margin-bottom:12px">Saúde técnica</div>
+      <div class="prow"><span class="pname">Receita p/ leads</span><div class="ptrack"><div class="pfill" style="width:72%;background:var(--c-marketing)"></div></div><span class="pval">R$ 410k</span></div>
+      <div class="prow"><span class="pname">Bugs corrigidos</span><div class="ptrack"><div class="pfill" style="width:80%;background:#2E7D52"></div></div><span class="pval">28</span></div>
+      <div class="prow"><span class="pname">Veloc. de página</span><div class="ptrack"><div class="pfill" style="width:86%;background:#2E7D52"></div></div><span class="pval">1,4s</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================= -->
+<!-- 05 · PRODUTO (entregas=restrito; visualização=geral)         -->
+<!-- ============================================================= -->
+<section class="section scroll-mt" id="produto" data-section data-access="mixed">
+  <div class="section-head" style="background:var(--b-produto)">
+    <span class="bar" style="background:var(--c-produto)"></span>
+    <div class="sh-icon" style="background:var(--c-produto)">🎬</div>
+    <div><div class="sh-num" style="color:var(--c-produto)">ÁREA 05</div><h2>Produto</h2>
+      <div class="sh-sub">Gestão de entregas e portfólio de cursos</div></div>
+    <span class="access-pill access-restrito" data-pill="lideranca">🔒 Misto</span>
+    <span class="access-pill access-geral" data-pill="operacao" hidden>👁 Geral · recorte</span>
+  </div>
+  <div class="block-label" data-block data-access="lideranca">Gestão de entregas <span class="minitag mt-restrito">🔒 Lideranças</span><span class="ln"></span></div>
+  <div class="grid g2" data-block data-access="lideranca">
+    <div class="card kpi"><div class="k-label">% de entregas no prazo</div><div class="k-val">91%</div><div class="k-sub"><span class="trend up">▲ 3%</span> meta 90%</div></div>
+    <div class="card kpi"><div class="k-label">Ocupação — equipe de edição</div><div class="k-val">78%</div><div class="k-sub"><span class="trend flat">● saudável</span> capacidade</div></div>
+  </div>
+  <div class="block-label" data-block data-access="geral">Visualização geral <span class="minitag mt-geral">👁 Visível p/ todos</span><span class="ln"></span></div>
+  <div class="grid g3" data-block data-access="geral">
+    <div class="card kpi"><div class="k-label">Cursos em produção</div><div class="k-val">7</div><div class="k-sub">em desenvolvimento</div></div>
+    <div class="card kpi"><div class="k-label">Cursos no portfólio</div><div class="k-val">42</div><div class="k-sub">ativos</div></div>
+    <div class="card kpi"><div class="k-label">Investido na produção</div><div class="k-val" style="font-size:24px">R$ 318k</div><div class="k-sub">ano corrente</div></div>
+  </div>
+  <div class="card" data-block data-access="geral" style="margin-top:14px">
+    <h3>Cursos em produção</h3><div class="csub" style="margin-bottom:12px">% de desenvolvimento</div>
+    <div class="prow"><span class="pname">Excel Avançado 2026</span><div class="ptrack"><div class="pfill" style="width:82%;background:var(--c-produto)"></div></div><span class="pval">82%</span></div>
+    <div class="prow"><span class="pname">Power BI do Zero</span><div class="ptrack"><div class="pfill" style="width:64%;background:var(--c-produto)"></div></div><span class="pval">64%</span></div>
+    <div class="prow"><span class="pname">Gestão de Processos</span><div class="ptrack"><div class="pfill" style="width:45%;background:var(--c-produto)"></div></div><span class="pval">45%</span></div>
+    <div class="prow"><span class="pname">Liderança na Prática</span><div class="ptrack"><div class="pfill" style="width:28%;background:#E8A13A"></div></div><span class="pval">28%</span></div>
+  </div>
+</section>
+
+<!-- ============================================================= -->
+<!-- 06 · ESCOLA TÉCNICA (restrito)                                -->
+<!-- ============================================================= -->
+<section class="section scroll-mt" id="escola" data-section data-access="lideranca">
+  <div class="section-head" style="background:var(--b-escola)">
+    <span class="bar" style="background:var(--c-escola)"></span>
+    <div class="sh-icon" style="background:var(--c-escola)">🏫</div>
+    <div><div class="sh-num" style="color:var(--c-escola)">ÁREA 06</div><h2>Escola Técnica</h2>
+      <div class="sh-sub">Resultado financeiro e funil da unidade</div></div>
+    <span class="access-pill access-restrito">🔒 Restrito · Lideranças</span>
+  </div>
+  <div class="grid g4" data-block data-access="lideranca">
+    <div class="card kpi"><div class="k-label">Faturamento total</div><div class="k-val" style="font-size:24px">R$ 612 mil</div><div class="k-sub"><span class="trend up">▲ 7%</span></div></div>
+    <div class="card kpi"><div class="k-label">Valor em caixa</div><div class="k-val" style="font-size:24px">R$ 198 mil</div></div>
+    <div class="card kpi"><div class="k-label">Despesas totais</div><div class="k-val" style="font-size:24px">R$ 451 mil</div><div class="k-sub">fixas 68% · var. 32%</div></div>
+    <div class="card kpi"><div class="k-label">Ticket médio</div><div class="k-val" style="font-size:24px">R$ 2,9k</div></div>
+    <div class="card kpi"><div class="k-label">CAC</div><div class="k-val" style="font-size:24px">R$ 340</div></div>
+    <div class="card kpi"><div class="k-label">Inadimplência</div><div class="k-val" style="font-size:24px">4,2%</div></div>
+    <div class="card kpi"><div class="k-label">Cancelamentos</div><div class="k-val" style="font-size:24px">31</div><div class="k-sub">por momento da desistência</div></div>
+    <div class="card kpi"><div class="k-label">Vendas realizadas</div><div class="k-val" style="font-size:24px">212</div></div>
+  </div>
+  <div class="grid g3" data-block data-access="lideranca" style="margin-top:14px">
+    <div class="card span2">
+      <h3>Fluxo de caixa — unidade</h3><span class="click-hint">🔍 clique nas linhas para detalhar</span>
+      <div class="chart-box"><canvas id="ch_escola"></canvas></div>
+    </div>
+    <div class="card">
+      <h3>Funil do mês</h3><div class="csub" style="margin-bottom:12px">Do lead à venda</div>
+      <div class="prow"><span class="pname">Leads</span><div class="ptrack"><div class="pfill" style="width:100%;background:var(--c-escola)"></div></div><span class="pval">1.420</span></div>
+      <div class="prow"><span class="pname">Orçamentos</span><div class="ptrack"><div class="pfill" style="width:42%;background:var(--c-escola)"></div></div><span class="pval">598</span></div>
+      <div class="prow"><span class="pname">Vendas</span><div class="ptrack"><div class="pfill" style="width:15%;background:#2E7D52"></div></div><span class="pval">212</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================= -->
+<!-- 07 · SUPORTE (restrito)                                       -->
+<!-- ============================================================= -->
+<section class="section scroll-mt" id="suporte" data-section data-access="lideranca">
+  <div class="section-head" style="background:var(--b-suporte)">
+    <span class="bar" style="background:var(--c-suporte)"></span>
+    <div class="sh-icon" style="background:var(--c-suporte)">🎧</div>
+    <div><div class="sh-num" style="color:var(--c-suporte)">ÁREA 07</div><h2>Suporte</h2>
+      <div class="sh-sub">Chamados de erro e tempo de resolução</div></div>
+    <span class="access-pill access-restrito">🔒 Restrito · Lideranças</span>
+  </div>
+  <div class="grid g4" data-block data-access="lideranca">
+    <div class="card kpi"><div class="k-label">Chamados reportados</div><div class="k-val">184</div><div class="k-sub">por alunos · a definir</div></div>
+    <div class="card kpi"><div class="k-label">Impacto / matrículas · PF</div><div class="k-val" style="font-size:24px">2,1%</div><div class="k-sub">chamados ÷ ativas</div></div>
+    <div class="card kpi"><div class="k-label">Impacto / matrículas · PJ</div><div class="k-val" style="font-size:24px">1,3%</div><div class="k-sub">chamados ÷ ativas</div></div>
+    <div class="card kpi"><div class="k-label">Tempo médio de resolução</div><div class="k-val" style="font-size:24px">6,4h</div><div class="k-sub">plataforma do Felipe</div></div>
+  </div>
+  <div class="card" data-block data-access="lideranca" style="margin-top:14px">
+    <h3>Chamados ao longo do mês</h3><span class="click-hint">🔍 clique nas linhas para ver os tipos</span>
+    <div class="chart-box"><canvas id="ch_suporte"></canvas></div>
+  </div>
+</section>
+
+<!-- ============================================================= -->
+<!-- 08 · DEPARTAMENTO PESSOAL (restrito)                          -->
+<!-- ============================================================= -->
+<section class="section scroll-mt" id="dp" data-section data-access="lideranca">
+  <div class="section-head" style="background:var(--b-dp)">
+    <span class="bar" style="background:var(--c-dp)"></span>
+    <div class="sh-icon" style="background:var(--c-dp)">👔</div>
+    <div><div class="sh-num" style="color:var(--c-dp)">ÁREA 08</div><h2>Departamento Pessoal</h2>
+      <div class="sh-sub">Folha, benefícios e controle interno</div></div>
+    <span class="access-pill access-restrito">🔒 Restrito · Lideranças</span>
+  </div>
+  <div class="grid g4" data-block data-access="lideranca">
+    <div class="card kpi"><div class="k-label">Folha total</div><div class="k-val" style="font-size:24px">R$ 512 mil</div><div class="k-sub">origem: planilha do banco</div></div>
+    <div class="card kpi"><div class="k-label">Benefícios</div><div class="k-val" style="font-size:24px">R$ 78 mil</div></div>
+    <div class="card kpi"><div class="k-label">Novas contratações</div><div class="k-val" style="font-size:24px">R$ 22 mil</div><div class="k-sub">4 admissões</div></div>
+    <div class="card kpi"><div class="k-label">Rescisões</div><div class="k-val" style="font-size:24px">R$ 9 mil</div><div class="k-sub">2 desligamentos</div></div>
+  </div>
+  <div class="grid g2" data-block data-access="lideranca" style="margin-top:14px">
+    <div class="card">
+      <h3>Folha por setor</h3><span class="click-hint">🔍 clique na barra do setor</span>
+      <div class="chart-box"><canvas id="ch_folha"></canvas></div>
+    </div>
+    <div class="card">
+      <h3>Uniformes em estoque</h3><div class="csub" style="margin-bottom:12px">Planilha interna (a fazer) · por tamanho</div>
+      <div class="prow"><span class="pname">P</span><div class="ptrack"><div class="pfill" style="width:40%;background:var(--c-dp)"></div></div><span class="pval">18</span></div>
+      <div class="prow"><span class="pname">M</span><div class="ptrack"><div class="pfill" style="width:85%;background:var(--c-dp)"></div></div><span class="pval">42</span></div>
+      <div class="prow"><span class="pname">G</span><div class="ptrack"><div class="pfill" style="width:60%;background:var(--c-dp)"></div></div><span class="pval">29</span></div>
+      <div class="prow"><span class="pname">GG</span><div class="ptrack"><div class="pfill" style="width:18%;background:#E8A13A"></div></div><span class="pval">8</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================= -->
+<!-- 09 · ADMINISTRATIVO (restrito)                                -->
+<!-- ============================================================= -->
+<section class="section scroll-mt" id="admin" data-section data-access="lideranca">
+  <div class="section-head" style="background:var(--b-admin)">
+    <span class="bar" style="background:var(--c-admin)"></span>
+    <div class="sh-icon" style="background:var(--c-admin)">🗂️</div>
+    <div><div class="sh-num" style="color:var(--c-admin)">ÁREA 09</div><h2>Administrativo</h2>
+      <div class="sh-sub">Patrimônio, contratos e suprimentos</div></div>
+    <span class="access-pill access-restrito">🔒 Restrito · Lideranças</span>
+  </div>
+  <div class="grid g4" data-block data-access="lideranca">
+    <div class="card kpi"><div class="k-label">Bens c/ responsável</div><div class="k-val">76%</div><div class="k-sub">c/ resp. ÷ cadastrados</div></div>
+    <div class="card kpi"><div class="k-label">Gasto em aquisição</div><div class="k-val" style="font-size:24px">R$ 41 mil</div><div class="k-sub">Planilha de Pagamentos</div></div>
+    <div class="card kpi"><div class="k-label">Contratos PJ ativos</div><div class="k-val">23</div><div class="k-sub">3 inativos</div></div>
+    <div class="card kpi"><div class="k-label">Valor mensal prestadores</div><div class="k-val" style="font-size:24px">R$ 67 mil</div></div>
+  </div>
+  <div class="grid g2" data-block data-access="lideranca" style="margin-top:14px">
+    <div class="card" style="padding:8px 8px 4px">
+      <table class="tbl">
+        <thead><tr><th>Contrato PJ</th><th>Setor</th><th>Vencimento</th><th class="num">Valor/mês</th></tr></thead>
+        <tbody>
+          <tr><td><b>Studio de Edição</b></td><td>Produto</td><td>30/08/26</td><td class="num">R$ 12k</td></tr>
+          <tr><td><b>Agência de Tráfego</b></td><td>Marketing</td><td>15/07/26</td><td class="num">R$ 9k</td></tr>
+          <tr><td><b>Contabilidade</b></td><td>Financeiro</td><td>01/12/26</td><td class="num">R$ 6k</td></tr>
+          <tr><td><b>Limpeza &amp; Facilities</b></td><td>Admin</td><td>20/09/26</td><td class="num">R$ 5k</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="card">
+      <h3>Compras &amp; suprimentos</h3><div class="csub" style="margin-bottom:12px">Estoque · disponibilidade por produto</div>
+      <div class="prow"><span class="pname"><span class="avail av-ok"></span> Papel A4</span><div class="ptrack"><div class="pfill" style="width:78%;background:#2E7D52"></div></div><span class="pval">OK</span></div>
+      <div class="prow"><span class="pname"><span class="avail av-low"></span> Toner</span><div class="ptrack"><div class="pfill" style="width:30%;background:#E8A13A"></div></div><span class="pval">Baixo</span></div>
+      <div class="prow"><span class="pname"><span class="avail av-out"></span> Café</span><div class="ptrack"><div class="pfill" style="width:8%;background:#D85B5B"></div></div><span class="pval">Repor</span></div>
+      <div class="prow"><span class="pname"><span class="avail av-ok"></span> Kit aluno</span><div class="ptrack"><div class="pfill" style="width:64%;background:#2E7D52"></div></div><span class="pval">OK</span></div>
+      <div class="csub" style="margin:12px 0 0">Último a retirar: <b>Ana Torres</b> · Toner · 14/06</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================= -->
+<!-- 10 · PROCESSOS (geral)                                        -->
+<!-- ============================================================= -->
+<section class="section scroll-mt" id="processo" data-section data-access="geral">
+  <div class="section-head" style="background:var(--b-processo)">
+    <span class="bar" style="background:var(--c-processo)"></span>
+    <div class="sh-icon" style="background:var(--c-processo)">🔄</div>
+    <div><div class="sh-num" style="color:var(--c-processo)">ÁREA 10</div><h2>Processos</h2>
+      <div class="sh-sub">Projetos em desenvolvimento e mapeamento</div></div>
+    <span class="access-pill access-geral">👁 Geral · todo o time</span>
+  </div>
+  <div class="block-label" data-block data-access="geral">Projetos em desenvolvimento <span class="ln"></span></div>
+  <div class="grid g3" data-block data-access="geral">
+    <div class="card">
+      <h3>Painel Unificado</h3><div class="csub">Equipes: Processos · TI · Dados</div>
+      <p style="font-size:13px;color:var(--muted);margin:8px 0 6px"><b style="color:var(--ink)">Objetivo:</b> centralizar indicadores de todos os setores em uma tela só.</p>
+      <p style="font-size:12.5px;color:var(--muted)"><b style="color:#2E7D52">No escopo:</b> dashboards e acessos · <b style="color:#D85B5B">Fora:</b> automação de coleta (fase 2)</p>
+      <div class="prow" style="border:0;padding-top:14px"><span class="pname">Andamento</span><div class="ptrack"><div class="pfill" style="width:55%;background:var(--c-processo)"></div></div><span class="pval">55%</span></div>
+    </div>
+    <div class="card">
+      <h3>Mapa de Faturamento</h3><div class="csub">Equipes: Financeiro · Comercial</div>
+      <p style="font-size:13px;color:var(--muted);margin:8px 0 6px"><b style="color:var(--ink)">Objetivo:</b> padronizar a planilha de vendas como fonte única.</p>
+      <p style="font-size:12.5px;color:var(--muted)"><b style="color:#2E7D52">No escopo:</b> template + treinamento</p>
+      <div class="prow" style="border:0;padding-top:14px"><span class="pname">Andamento</span><div class="ptrack"><div class="pfill" style="width:80%;background:var(--c-processo)"></div></div><span class="pval">80%</span></div>
+    </div>
+    <div class="card">
+      <h3>Onboarding 2.0</h3><div class="csub">Equipes: DP · Processos</div>
+      <p style="font-size:13px;color:var(--muted);margin:8px 0 6px"><b style="color:var(--ink)">Objetivo:</b> reduzir o tempo de integração de novos colaboradores.</p>
+      <p style="font-size:12.5px;color:var(--muted)"><b style="color:#2E7D52">No escopo:</b> trilha + manual</p>
+      <div class="prow" style="border:0;padding-top:14px"><span class="pname">Andamento</span><div class="ptrack"><div class="pfill" style="width:30%;background:#E8A13A"></div></div><span class="pval">30%</span></div>
+    </div>
+  </div>
+  <div class="card" data-block data-access="geral" style="margin-top:14px;padding:8px 8px 4px">
+    <table class="tbl">
+      <thead><tr><th>Processo</th><th>Equipe</th><th>Mapeamento</th><th>Otimização</th></tr></thead>
+      <tbody>
+        <tr><td><b>Emissão de notas</b></td><td>Financeiro</td><td><span class="status s-fechando">Concluído</span></td><td><span class="status s-andamento">Em curso</span></td></tr>
+        <tr><td><b>Fluxo de matrícula</b></td><td>Comercial</td><td><span class="status s-fechando">Concluído</span></td><td><span class="status s-proposta">A iniciar</span></td></tr>
+        <tr><td><b>Produção de cursos</b></td><td>Produto</td><td><span class="status s-andamento">Em curso</span></td><td><span class="status s-proposta">A iniciar</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+</div><!-- /wrap -->
+
+<footer>
+  <span>Engehall Treinamentos · Painel Unificado — protótipo navegável com dados fictícios</span>
+  <span id="foot-mode">Visão: Lideranças · 10 áreas</span>
+</footer>
+
+<!-- ===================== MODAL DRILL-DOWN ===================== -->
+<div class="modal-bg" id="modalbg" onclick="bgClose(event)">
   <div class="modal">
-    <div class="modal-header">
-      <div><div class="modal-date" id="m-date"></div><div class="modal-date-sub" id="m-sub"></div></div>
-      <button class="modal-close" onclick="closeModal()">×</button>
+    <div class="modal-head">
+      <div>
+        <div class="modal-eyebrow" id="m-eyebrow">DETALHAMENTO</div>
+        <h3 id="m-title"></h3>
+        <div class="ms" id="m-sub"></div>
+      </div>
+      <button class="modal-x" onclick="closeModal()">✕</button>
     </div>
-    <div class="modal-orange-bar"></div>
-    <div class="modal-body" id="m-body"></div>
-  </div>
-</div>
-
-<!-- Add task modal -->
-<div class="add-modal-bg" id="add-modal-bg" onclick="addBgClick(event)">
-  <div class="add-modal">
-    <div class="add-modal-header">
-      <div class="add-modal-title">Nova tarefa manual</div>
-      <button class="modal-close" onclick="closeAddModal()">×</button>
-    </div>
-    <div class="add-modal-body">
-      <div class="form-row">
-        <div class="form-group">
-          <label class="form-label">Data *</label>
-          <input class="form-input" type="date" id="f-date">
-        </div>
-        <div class="form-group">
-          <label class="form-label">Empresa *</label>
-          <select class="form-select" id="f-empresa">
-            <option value="eletrica">Elétrica</option>
-            <option value="tech">Tech</option>
-          </select>
-        </div>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Responsável *</label>
-        <select class="form-select" id="f-role">
-          <option value="coordenacao">Coordenação do Setor (Eulália)</option>
-          <option value="assistente">Assistente (Marcela)</option>
-          <option value="estagiario">Estagiário (Alvaro)</option>
-          <option value="todos">Todos</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Título da tarefa *</label>
-        <input class="form-input" type="text" id="f-title" placeholder="Ex: Reunião com contabilidade">
-      </div>
-      <div class="form-group">
-        <label class="form-label">Descrição</label>
-        <textarea class="form-textarea" id="f-desc" placeholder="Descreva o que deve ser feito..."></textarea>
-      </div>
-      <div class="form-actions">
-        <button class="btn-cancel" onclick="closeAddModal()">Cancelar</button>
-        <button class="btn-save" onclick="saveTask()">Salvar tarefa</button>
-      </div>
+    <div class="modal-body">
+      <div class="modal-total" id="m-total"></div>
+      <div class="modal-chartbox"><canvas id="m-chart"></canvas></div>
+      <table class="tbl" id="m-table"></table>
     </div>
   </div>
 </div>
 
 <script>
-// ── Data ──────────────────────────────────────────────
-const CATS={
-  diario:   {label:'Diário',         bg:'#dbeafe',text:'#1e3a8a',dot:'#004F92',bar:'#004F92'},
-  semanal:  {label:'Semanal',        bg:'#dcfce7',text:'#14532d',dot:'#16a34a',bar:'#16a34a'},
-  quinzenal:{label:'Quinzenal',      bg:'#fef9c3',text:'#713f12',dot:'#ca8a04',bar:'#ca8a04'},
-  mensal:   {label:'Mensal',         bg:'#ede9fe',text:'#3b0764',dot:'#7c3aed',bar:'#7c3aed'},
-  pontual:  {label:'Pontual / Data', bg:'#ffe4e6',text:'#881337',dot:'#E05C16',bar:'#E05C16'},
-};
-
-const ROLES={
-  coordenacao:{label:'Coordenação do Setor', dot:'#0ea5e9', bg:'#e0f2fe', text:'#0c4a6e'},
-  assistente: {label:'Assistente',           dot:'#22c55e', bg:'#f0fdf4', text:'#14532d'},
-  estagiario: {label:'Estagiário',           dot:'#a855f7', bg:'#faf5ff', text:'#581c87'},
-  todos:      {label:'Toda a equipe',        dot:'#64748b', bg:'#f1f5f9', text:'#334155'},
-};
-
-const EMPRESAS={
-  eletrica:{label:'Elétrica', dot:'#004F92', bg:'#dbeafe', text:'#1e3a8a', bar:'#004F92', pill:'#bfdbfe'},
-  tech:    {label:'Tech',     dot:'#E05C16', bg:'#fff0e8', text:'#7c2600', bar:'#E05C16', pill:'#ffd4bb'},
-};
-
-// resp field maps to role key
-function respToRole(resp){
-  const r=resp.toLowerCase();
-  if(r.includes('eulália')||r.includes('eulalia')) return 'coordenacao';
-  if(r.includes('marcela')) return 'assistente';
-  if(r.includes('alvaro')) return 'estagiario';
-  return 'todos';
-}
-
-const TASKS=[
-  {id:1, title:'Conciliação bancária — entradas',       cat:'diario',   resp:'Estagiário (Alvaro)',       freq:'Todos os dias úteis', desc:'Acessar Conta Azul e verificar se há lançamentos de entradas em aberto. Conferir no Pagar.me eventuais pendências do dia.', empresa:'eletrica', role:'estagiario', link:'https://docs.google.com/presentation/d/1cWOH_R-LoO9RC1ydsqAIdxVuRjNkGnfHyEil4pVG2EU/edit?slide=id.p#slide=id.p', rule:d=>isUtil(d)},
-  {id:2, title:'Conciliação bancária — saídas',         cat:'diario',   resp:'Coordenação do Setor (Eulália)', freq:'Todos os dias úteis', desc:'Verificar e registrar saídas no Conta Azul diariamente. Garantir que todos os pagamentos realizados estejam lançados corretamente.', empresa:'eletrica', role:'coordenacao', link:'https://docs.google.com/presentation/d/1cWOH_R-LoO9RC1ydsqAIdxVuRjNkGnfHyEil4pVG2EU/edit?slide=id.p#slide=id.p', rule:d=>isUtil(d)},
-  {id:3, title:'Atualização fluxo de caixa Pagar.me',  cat:'diario',   resp:'Estagiário (Alvaro)',       freq:'Todos os dias úteis', desc:'Acessar Pagar.me > Extratos, selecionar período do dia anterior. Verificar valor de vendas, taxas, chargebacks e estornos. Copiar para a planilha de fluxo de caixa e conferir se o saldo bate. Se não bater, encontrar a divergência antes de finalizar.', empresa:'eletrica', role:'estagiario', link:'https://docs.google.com/presentation/d/1pCY9TifR6tzA-wuwhIH1T5GUXWkuZdbGBhtrbvt7j_g/edit?slide=id.g3ea9108b9bf_0_216#slide=id.g3ea9108b9bf_0_216', rule:d=>isUtil(d)},
-  {id:4, title:'Recebimento de notas/boletos e cadastro', cat:'diario', resp:'Coordenação do Setor (Eulália)', freq:'Todos os dias úteis', desc:'Acessar e-mail financeiro1@engehall.com, filtrar boletos, faturas e notas fiscais. Cadastrar todos no Conta Azul com anexo. Provisionar os que têm recorrência conhecida.', empresa:'eletrica', role:'coordenacao', link:'https://docs.google.com/presentation/d/1-mIUGrAzCC6UUMHG3qieBWmOydxj9uuJeiaXjiMLplM/edit?slide=id.p#slide=id.p', rule:d=>isUtil(d)},
-  {id:5, title:'Monitorar transações e limites de cartões', cat:'diario', resp:'Assistente (Marcela)',  freq:'Todos os dias úteis', desc:'Monitorar via e-mail (financeiro2@engehall.com.br) se alguma transação foi recusada. Verificar Banco Itaú e Conta Simples. Se cartão vencido: gerar novo. Se limite estourado: verificar origem com responsável e avaliar aumento de limite.', empresa:'eletrica', role:'assistente', link:'https://docs.google.com/presentation/d/1-qQFtPW9rzzg8FrepVjCOqHsylzUdPV6fCjSxBg2fS4/edit?slide=id.p#slide=id.p', rule:d=>isUtil(d)},
-  {id:6, title:'Saque Pagar.me',                        cat:'semanal',  resp:'Estagiário (Alvaro)',       freq:'Toda segunda-feira',   desc:'Acessar Pagar.me e conferir saldo disponível. Realizar saque SOMENTE se saldo estiver acima de R$ 10.000 — abaixo disso, aguardar a próxima semana para manter reserva contra chargebacks. Conciliação no Conta Azul feita na terça-feira seguinte.', empresa:'eletrica', role:'estagiario', link:'https://docs.google.com/presentation/d/1sK_wzwMZ3sP0DLN76aJS6KmPcSrLAM024J_Fq0sM9O4/edit?slide=id.p#slide=id.p', rule:d=>isUtil(d)&&d.getDay()===1},
-  {id:7, title:'Acompanhamento inadimplentes TMB',      cat:'semanal',  resp:'Estagiário (Alvaro)',       freq:'Toda segunda-feira',   desc:'Acessar TMB > Financeiro > Contratos > Contas a Receber > filtrar status "vencidos". Exportar lista, comparar com a semana anterior identificando entradas e saídas. Repassar lista atualizada para Elisa (comercial) via WhatsApp.', empresa:'eletrica', role:'estagiario', link:'https://docs.google.com/presentation/d/1oMvmOwf9r_1Fl_6kb5uEdCpfa0NgW3Y8KgsP3FWxx-Y/edit?slide=id.p#slide=id.p', rule:d=>isUtil(d)&&d.getDay()===1},
-  {id:8, title:'Agendamento e pagamento de fornecedores', cat:'semanal', resp:'Assistente (Marcela)',   freq:'Segundas e quintas-feiras', desc:'Acessar Banco Itaú (celular corporativo ou computador). Fazer leitura do código de barras, agendar data de pagamento e anexar NF ou anotar nome/vencimento do boleto. Gerar relatório "contas a autorizar" no Conta Azul (Contas a Pagar > Consulta > filtrar por data), salvar em PDF e enviar para Eulália. Eulália confere com Luís via WhatsApp, que dá a aprovação final.', empresa:'eletrica', role:'assistente', link:'https://docs.google.com/presentation/d/1wEGygLSQe39yixqUNKwTKCgx-sxpbJTBCLLJMRk04C0/edit?slide=id.p#slide=id.p', rule:d=>isUtil(d)&&(d.getDay()===1||d.getDay()===4)},
-  {id:9, title:'Atualização fluxo de caixa TMB',        cat:'semanal',  resp:'Estagiário (Alvaro)',       freq:'Quarta-feira (a cada 2–3 dias)', desc:'Acessar TMB > Finanças e Contratos > Carteira. Verificar novas vendas e parcelas pagas desde a última atualização. Para nova venda: cadastrar no Conta Azul. Para pagamento de parcela existente: dar baixa. Lançar também as duas taxas de serviço obrigatórias do TMB por compra.', empresa:'eletrica', role:'estagiario', link:'https://docs.google.com/presentation/d/1NDVhWT75fHzHtw_WVm_xuhFRc8gs4PDcOlR--sPLR9k/edit?slide=id.g3ed58404079_0_41#slide=id.g3ed58404079_0_41', rule:d=>isUtil(d)&&d.getDay()===3},
-  {id:10,title:'Conferência de duplicidades de pagamentos', cat:'quinzenal', resp:'Estagiário (Alvaro)', freq:'Dias 1 e 15 de cada mês', desc:'Acessar dashboard do Bernardo e verificar se há pagamentos duplicados. Se houver duplicidade, preencher formulário de duplicidade para que o comercial faça a tratativa com o cliente.', empresa:'eletrica', role:'estagiario', link:'https://docs.google.com/presentation/d/19ByyjhO2IAbwHAhbaMgFWpdQQ0n_yQa5VFJM1YJDSVk/edit?slide=id.g3e8b75ec54e_0_282#slide=id.g3e8b75ec54e_0_282', rule:d=>isUtil(d)&&(d.getDate()===1||d.getDate()===15)},
-  {id:11,title:'Saque TMB — mensal',                    cat:'mensal',   resp:'Estagiário (Alvaro)',       freq:'Primeira segunda-feira do mês', desc:'Na primeira segunda-feira de cada mês: acessar TMB e conferir saldo disponível. Realizar saque SOMENTE se saldo estiver acima de R$ 5.000. Abaixo disso, aguardar a semana seguinte.', empresa:'eletrica', role:'estagiario', link:'https://docs.google.com/presentation/d/1sK_wzwMZ3sP0DLN76aJS6KmPcSrLAM024J_Fq0sM9O4/edit?slide=id.p#slide=id.p', rule:d=>isUtil(d)&&d.getDay()===1&&d.getDate()<=7},
-  {id:12,title:'Fechamento de faturas dos cartões',     cat:'mensal',   resp:'Assistente (Marcela)',      freq:'Entre os dias 1 e 5',  desc:'Verificar transações recebidas no e-mail financeiro2, subir lançamentos no Conta Azul. Fechar faturas dos cartões corporativos do Conta Simples. Confirmar que todas as despesas do mês anterior estão registradas.', empresa:'eletrica', role:'assistente', link:'https://docs.google.com/presentation/d/1L2tlHTd2eLL3JBhMKRMRMDrbCy7EDCmlCYeqmXBUIZc/edit?slide=id.p#slide=id.p', rule:d=>isUtil(d)&&d.getDate()===3},
-  {id:13,title:'Fechamento da apresentação mensal',     cat:'mensal',   resp:'Toda a equipe',             freq:'Primeira segunda-feira do mês', desc:'Estagiário confronta valores do dashboard com Pagar.me — se não bater, acionar Bernardo via ClickUp. Preencher planilha com receitas categorizadas. Alimentar apresentação em PowerPoint com dados do mês anterior. Bruna preenche dados de eventos (meteóricos, lançamentos). Compartilhar análise no grupo dos sócios.', empresa:'eletrica', role:'todos', link:'https://docs.google.com/presentation/d/1MzNl1feMfHJfQK5HVgSUYtDhHWrHGuSXyRPgMSJ3EUc/edit?slide=id.g3ea9c90529b_0_98#slide=id.g3ea9c90529b_0_98', rule:d=>isUtil(d)&&d.getDay()===1&&d.getDate()<=7},
-  {id:14,title:'Envio de NFs para a contabilidade',     cat:'mensal',   resp:'Coordenação do Setor (Eulália)', freq:'Até o dia 4 (ou último dia útil antes)', desc:'ATENÇÃO: prazo máximo é o dia 4 de cada mês. Se o dia 4 cair em sábado ou domingo, antecipar para a sexta-feira anterior (último dia útil). O envio dentro do prazo é essencial para que a contabilidade gere as guias a tempo — o ISS vence no dia 8. Conferir NFs de entrada de produto no Conta Azul. Buscar NFs de serviço tomado no Portal Nacional (nfse.gov.br). Gerar relatório de notas de receita no Notazz. Alimentar Drive compartilhado e formalizar envio por e-mail para contabilidade Grecco.', empresa:'eletrica', role:'coordenacao', link:'https://docs.google.com/presentation/d/1yhTK-ZTDyRUClRJrfgA0V6X4JQq0mzJZZ-st1VXAQ5c/edit?slide=id.p#slide=id.p', rule:d=>{const y=d.getFullYear(),m=d.getMonth(),dia4=new Date(y,m,4),dow4=dia4.getDay();let alvo=4;if(dow4===6||dow4===0)alvo=3;return d.getDate()===alvo&&d.getMonth()===m&&d.getFullYear()===y&&isUtil(d)}},
-  {id:15,title:'Verificar domínios e certificados digitais', cat:'mensal', resp:'Assistente (Marcela)', freq:'Início do mês (~dia 8)', desc:'Verificar no Conta Azul e na planilha de ferramentas (compartilhada com Bernardo) se algum domínio ou certificado digital está próximo de vencer. Para renovação de certificado digital, acionar diretores para liberar acesso (vinculado ao celular/e-mail deles).', empresa:'eletrica', role:'assistente', link:'https://docs.google.com/presentation/d/1zy-LqpQW9i78UAfXKz_72---rbSBYUsp_ooxbRvjJCI/edit?slide=id.p#slide=id.p', rule:d=>isUtil(d)&&d.getDate()===8},
-  {id:16,title:'Pagamento do ISS próprio',              cat:'pontual',  resp:'Coordenação do Setor (Eulália)', freq:'Vence dia 8', desc:'Receber guia da contabilidade (gerada após envio das NFs no dia 4). Efetuar pagamento via Banco Itaú até o dia 8. Atenção: envio tardio das NFs resulta em ISS pago com encargo de atraso. Após efetuar o pagamento, registrar obrigatoriamente em Contas a Pagar no Conta Azul.', empresa:'eletrica', role:'coordenacao', link:'https://docs.google.com/presentation/d/18ZbH8QmgZfzq47EOLruCRi4WIBqStnHR8qy3BgS7VXA/edit?slide=id.g3ed4dbd7b11_0_131#slide=id.g3ed4dbd7b11_0_131', rule:d=>isUtil(d)&&d.getDate()===8},
-  {id:17,title:'Atualização planilha de ferramentas',   cat:'mensal',   resp:'Assistente (Marcela)',      freq:'Reunião mensal (~dia 10)', desc:'Reunião mensal com Bernardo para revisar planilha de ferramentas e atualizar valores. Verificar variações de custo. Se alguma ferramenta estiver com custo elevado, acionar setor responsável para avaliar alternativas. Informações consolidadas no dashboard do Bernardo.', empresa:'eletrica', role:'assistente', link:'https://docs.google.com/presentation/d/1ICy3DQMWuldTPqlqKLx-_b9QZ1v3B5_Dpm-WG8DN-5E/edit?slide=id.p#slide=id.p', rule:d=>isUtil(d)&&d.getDate()===10},
-  {id:18,title:'Preenchimento e conferência da DR',     cat:'mensal',   resp:'Assistente (Marcela) + Coordenação (Eulália)', freq:'A partir do dia 10', desc:'Aguardar fechamento da fatura do Banco Itaú. Acessar Conta Azul (despesas), Dashboard do Bernardo (tráfego) e relatório mensal de fechamento (receita). Preencher planilha da DR. Avaliar oscilações de despesas, margens, lucro líquido e categorias discrepantes.', empresa:'eletrica', role:'todos', link:'https://docs.google.com/presentation/d/1ZNXqWLhpn_huMYVtICJTU4hWXDk4_nzzC4oV8IpEI7E/edit?slide=id.g3ed53e177f6_0_0#slide=id.g3ed53e177f6_0_0', rule:d=>isUtil(d)&&d.getDate()===10},
-  {id:19,title:'Conferência mensal do fluxo de caixa', cat:'mensal',   resp:'Coordenação do Setor (Eulália)', freq:'Até o dia 10', desc:'Acessar Conta Azul > Fluxo de Caixa. Verificar se o saldo do sistema bate com os saldos bancários reais (Banco Itaú, Pagar.me, Conta Simples). Identificar e corrigir divergências antes de fechar o mês.', empresa:'eletrica', role:'coordenacao', link:'https://docs.google.com/presentation/d/1-lWaX28G9puuBWdF7jzv25zK9sy8A3bODTskGKt-2Ek/edit?slide=id.p#slide=id.p', rule:d=>isUtil(d)&&d.getDate()===10},
-  {id:20,title:'Pagamento IR retido',                   cat:'pontual',  resp:'Coordenação do Setor (Eulália)', freq:'Guia recebida até dia 20 — pagar no mesmo dia', desc:'Receber guia de IR retido da contabilidade (enviada mensalmente até o dia 20). Efetuar pagamento via Banco Itaú no mesmo dia do recebimento. Após efetuar o pagamento, registrar obrigatoriamente em Contas a Pagar no Conta Azul.', empresa:'eletrica', role:'coordenacao', link:'https://docs.google.com/presentation/d/18ZbH8QmgZfzq47EOLruCRi4WIBqStnHR8qy3BgS7VXA/edit?slide=id.g3ed4dbd7b11_0_131#slide=id.g3ed4dbd7b11_0_131', rule:d=>isUtil(d)&&d.getDate()===20},
-  {id:21,title:'Pagamento PIS, Cofins, ICMS e ISS retido', cat:'pontual', resp:'Coordenação do Setor (Eulália)', freq:'Prazo até dia 25', desc:'Receber guias da contabilidade para PIS, Cofins, ICMS e ISS retido. Efetuar todos os pagamentos via Banco Itaú até o dia 25. Após cada pagamento, registrar obrigatoriamente em Contas a Pagar no Conta Azul com comprovante anexado.', empresa:'eletrica', role:'coordenacao', link:'https://docs.google.com/presentation/d/18ZbH8QmgZfzq47EOLruCRi4WIBqStnHR8qy3BgS7VXA/edit?slide=id.g3ed4dbd7b11_0_131#slide=id.g3ed4dbd7b11_0_131', rule:d=>isUtil(d)&&d.getDate()===25},
-  {id:24,title:'Pagamento IRPJ e CSLL (trimestral)',    cat:'pontual',  resp:'Coordenação do Setor (Eulália)', freq:'Trimestral — até dia 30 do mês seguinte ao fim do trimestre', desc:'Pagamento trimestral de IRPJ e CSLL (lucro presumido). A guia é recebida da contabilidade até o dia 30 do mês posterior ao encerramento do trimestre (abril, julho, outubro e janeiro). Efetuar pagamento via Banco Itaú assim que receber a guia. Após o pagamento, registrar obrigatoriamente em Contas a Pagar no Conta Azul com comprovante anexado.', empresa:'eletrica', role:'coordenacao', link:'https://docs.google.com/presentation/d/18ZbH8QmgZfzq47EOLruCRi4WIBqStnHR8qy3BgS7VXA/edit?slide=id.g3ed4dbd7b11_0_131#slide=id.g3ed4dbd7b11_0_131', rule:d=>{const m=d.getMonth(),day=d.getDate();return isUtil(d)&&[3,6,9,0].includes(m)&&day===30}},
-  {id:25,title:'Pagamento FGTS e INSS',                 cat:'pontual',  resp:'Coordenação do Setor (Eulália)', freq:'Vence dia 19 — guia enviada pelo RH até dia 10', desc:'A Drielly (RH) envia as guias de FGTS e INSS para Laura e Marcela até o dia 10. Efetuar pagamento via Banco Itaú até o dia 19. Após o pagamento, registrar obrigatoriamente em Contas a Pagar no Conta Azul com comprovante anexado.', empresa:'eletrica', role:'coordenacao', rule:d=>isUtil(d)&&d.getDate()===19},
-  {id:22,title:'Conferência NFs — notas x vendas',      cat:'mensal',   resp:'Estagiário (Alvaro)',       freq:'Final do mês', desc:'Acessar Notazz e Pagar.me. Confrontar valores das notas fiscais emitidas com os valores das vendas registradas. Se o Notazz não tiver cancelado automaticamente alguma nota, verificar no Pagar.me e cancelar manualmente — abrir chamado com equipe do sistema.', empresa:'eletrica', role:'estagiario', link:'https://docs.google.com/presentation/d/1Qmaron0kBcAcQMz1T0lftrX1p3gPNyApoaaBvLp89j0/edit?slide=id.g3ea17158ae7_0_175#slide=id.g3ea17158ae7_0_175', rule:d=>isUtil(d)&&d.getDate()===28},
-  {id:23,title:'Conciliação bancária mensal — Conta Simples', cat:'mensal', resp:'Assistente (Marcela) / Coordenação (Eulália)', freq:'Final do mês', desc:'Conta Simples é conciliada apenas uma vez ao mês (tem somente um rendimento mensal). Conferir todos os lançamentos do período e verificar se o saldo está correto.', empresa:'eletrica', role:'todos', link:'https://docs.google.com/presentation/d/1cWOH_R-LoO9RC1ydsqAIdxVuRjNkGnfHyEil4pVG2EU/edit?slide=id.p#slide=id.p', rule:d=>isUtil(d)&&d.getDate()===28},
-
-  // ── TECH ──────────────────────────────────────────────
-  // Diário
-  {id:101,title:'Atualização fluxo de caixa Pagar.me',     cat:'diario',    resp:'Estagiário (Alvaro)',        freq:'Todos os dias úteis', desc:'Acessar Pagar.me > Extratos, selecionar período do dia anterior. Verificar valor de vendas, taxas, chargebacks e estornos. Copiar para a planilha de fluxo de caixa e conferir se o saldo bate. Se não bater, encontrar a divergência antes de finalizar.', empresa:'tech', role:'estagiario', rule:d=>isUtil(d)},
-  {id:102,title:'Recebimento de notas/boletos e cadastro no Bling', cat:'diario', resp:'Coordenação do Setor (Marcela)', freq:'Todos os dias úteis', desc:'Acessar e-mails financeiro2@engehall.com, financeiro4@engehall.com.br e marcelam.engehall@gmail.com. Filtrar boletos, faturas e notas fiscais recebidas. Cadastrar no Bling. Atenção: boleto da Claro não chega por e-mail — buscar diretamente no site da Claro (Gerenciamento > Download > Últimas faturas).', empresa:'tech', role:'coordenacao', rule:d=>isUtil(d)},
-  {id:103,title:'Monitorar transações e limites de cartões', cat:'diario',   resp:'Coordenação do Setor (Marcela)', freq:'Todos os dias úteis', desc:'Monitorar via e-mail (financeiro2@engehall.com.br) se alguma transação foi recusada. Verificar Banco Inter e Conta Simples. Se houver inconsistência, verificar razão e dar sequência ao processo conforme mapeado.', empresa:'tech', role:'coordenacao', rule:d=>isUtil(d)},
-
-  // Semanal
-  {id:104,title:'Conciliação bancária',              cat:'semanal',   resp:'Coordenação do Setor (Marcela)', freq:'Toda sexta-feira', desc:'Baixar extratos completos no Banco Inter e no Conta Simples. Acessar Bling > Financeiro > Caixas e Bancos > filtrar pela conta > filtrar mês atual > aba Conciliação > selecionar arquivo OFX baixado no banco > enviar para conciliar. A plataforma organiza automaticamente os lançamentos. Conferir se as informações batem com o extrato.', empresa:'tech', role:'coordenacao', rule:d=>isUtil(d)&&d.getDay()===5},
-  {id:105,title:'Agendamento e pagamento de fornecedores', cat:'semanal', resp:'Coordenação do Setor (Marcela)', freq:'Segundas e quintas-feiras', desc:'Acessar Bling e Banco Inter. Agendar pagamentos dos fornecedores cadastrados. Praticamente todos os pagamentos são recebidos até o dia 10 e o agendamento é realizado. Pagamentos são feitos pelo Banco Inter; para impostos trimestrais de valor mais alto, usar o Conta Simples.', empresa:'tech', role:'coordenacao', rule:d=>isUtil(d)&&(d.getDay()===1||d.getDay()===4)},
-  {id:106,title:'Conferência de NFs rejeitadas',             cat:'semanal',   resp:'Coordenação do Setor (Marcela)', freq:'Semanal (dia mais tranquilo)', desc:'Acessar Notazz > NFS-e > filtrar por "Rejeitadas". Notas podem ser rejeitadas por problema de CEP. Se CEP errado: acessar site BuscaCEP e conferir o logradouro correto. Se endereço não existir, contatar suporte do Notazz para colocar o endereço da empresa — ao fazer isso, solicitar que acrescentem a data de competência como dia de hoje. Não deixar acumular — fazer semanalmente, especialmente na última semana do mês (pico de ações de marketing).', empresa:'tech', role:'coordenacao', rule:d=>isUtil(d)&&d.getDay()===3},
-  {id:107,title:'Fechamento semanal da apresentação', cat:'semanal',   resp:'Estagiário (Alvaro)',        freq:'Toda terça-feira', desc:'Alvaro preenche os dados de acompanhamento semanal: acessar Pagar.me, Apple, Google e Notazz. Acompanhar se as informações do dashboard do Meu Ajudante estão dentro do padrão — se não estiverem, reportar à Marcela ou ao Raphael. Se necessário, puxar relatório pelo Revenuecat. Enviar relatório ao Raphael via WhatsApp.', empresa:'tech', role:'estagiario', rule:d=>isUtil(d)&&d.getDay()===2},
-
-  // Mensal — início do mês
-  {id:108,title:'Saque Pagar.me',                    cat:'mensal',    resp:'Coordenação do Setor (Marcela)', freq:'Primeiro dia útil do mês', desc:'No primeiro dia útil do mês, acessar Pagar.me e realizar saque. NUNCA deixar o saldo abaixo de R$ 1.000. Após o saque, o valor cai no Banco Inter.', empresa:'tech', role:'coordenacao', rule:d=>isUtil(d)&&isPrimeiroDiaUtil(d)},
-  {id:109,title:'Envio de NFs para a contabilidade', cat:'mensal',    resp:'Coordenação do Setor (Marcela)', freq:'Primeiro dia útil do mês', desc:'No primeiro dia útil do mês, acessar Notazz e baixar as notas fiscais do mês anterior através do link público. Baixar o arquivo zipado e enviar por e-mail para Driele (contabilidade Grecco) com o assunto "Relatório das notas fiscais do mês XX".', empresa:'tech', role:'coordenacao', rule:d=>isUtil(d)&&isPrimeiroDiaUtil(d)},
-  {id:110,title:'Fechamento de faturas dos cartões',  cat:'mensal',    resp:'Coordenação do Setor (Marcela)', freq:'Entre os dias 1 e 5', desc:'Verificar transações recebidas no e-mail financeiro2, subir lançamentos no Bling. Fechar faturas dos cartões corporativos do Conta Simples. Confirmar que todas as despesas do mês anterior estão registradas.', empresa:'tech', role:'coordenacao', rule:d=>isUtil(d)&&d.getDate()===3},
-  {id:111,title:'Registro dos extratos bancários',    cat:'mensal',    resp:'Coordenação do Setor (Marcela)', freq:'Dia 5 de cada mês', desc:'Acessar Banco Inter e Conta Simples. Baixar o extrato bancário completo do mês anterior de ambos os bancos. Salvar os arquivos na pasta do Drive "Extratos Bancários".', empresa:'tech', role:'coordenacao', rule:d=>isUtil(d)&&d.getDate()===5},
-  {id:112,title:'Emissão de NF — Apple',                     cat:'mensal',    resp:'Estagiário (Alvaro)',        freq:'Primeiros dias do mês (pagamento recebido no banco)', desc:'Aguardar Marcela receber o pagamento da Apple no banco (pagamento do mês atual refere-se às vendas de dois meses antes). Acessar plataforma Apple, emitir relatório financeiro, transformar em CSV e filtrar no Dashboard do Meu Ajudante (aba Extratos) para obter receita bruta, reembolsos e taxas. Cadastrar valores no Bling. Emitir nota fiscal pelo Portal Nacional com base no valor bruto.', empresa:'tech', role:'estagiario', rule:d=>isUtil(d)&&d.getDate()===4},
-  {id:113,title:'Preenchimento do Fluxo de Caixa',    cat:'mensal',    resp:'Estagiário (Alvaro)',        freq:'Primeiros dias úteis do mês', desc:'Acessar Bling e preencher o fluxo de caixa do mês anterior. Verificar se os saldos do Banco Inter e Conta Simples estão batendo com os registros. Alimentar planilha de Fluxo de Caixa e DR.', empresa:'tech', role:'estagiario', rule:d=>isUtil(d)&&d.getDate()===4},
-
-  // Mensal — meio do mês
-  {id:114,title:'Emissão de NF — Google Play',               cat:'mensal',    resp:'Estagiário (Alvaro)',        freq:'Dias 16 a 18 (quando o pagamento cai)', desc:'Receber o pagamento da Google Play (cai entre dias 16 e 18). Entrar na plataforma Google Play, baixar relatório financeiro em CSV. Subir o relatório no Meu Ajudante, filtrar informações e verificar se batem com o valor líquido recebido. Após conferência, subir valores no Bling. Emitir nota fiscal pelo Portal Nacional — todas as notas da Tech são de serviço.', empresa:'tech', role:'estagiario', rule:d=>isUtil(d)&&d.getDate()===17},
-  {id:115,title:'Transferência Inter → Conta Simples',        cat:'mensal',    resp:'Coordenação do Setor (Marcela)', freq:'Dia 15 de cada mês', desc:'Após todas as contas do mês serem pagas, transferir o montante restante do Banco Inter para o Conta Simples para rendimento diário. Verificar se o saldo no Inter está adequado antes de transferir.', empresa:'tech', role:'coordenacao', rule:d=>isUtil(d)&&d.getDate()===15},
-  {id:116,title:'Preenchimento e conferência da DR',   cat:'mensal',    resp:'Coordenação do Setor (Marcela)', freq:'A partir do dia 10', desc:'Aguardar fechamento da fatura do Conta Simples. Acessar Bling para obter dados de despesas e receita. Preencher planilha da DR. Avaliar oscilações de despesas, margens, lucro líquido e categorias discrepantes. Acompanhar metas de faturamento e margem de lucro definidas para o ano.', empresa:'tech', role:'coordenacao', rule:d=>isUtil(d)&&d.getDate()===10},
-  {id:117,title:'Atualização planilha de impostos',    cat:'mensal',    resp:'Estagiário (Alvaro)',        freq:'Mensal (após fechamento da DR)', desc:'Observar o valor na planilha de controle financeiro. Preencher o valor no campo correspondente na planilha de projeção de impostos. Após inserir os valores, a projeção é feita automaticamente pela planilha.', empresa:'tech', role:'estagiario', rule:d=>isUtil(d)&&d.getDate()===12},
-  {id:118,title:'Conferência NFs — notas x vendas',    cat:'mensal',    resp:'Estagiário (Alvaro)',        freq:'Final do mês', desc:'Acessar Notazz e Pagar.me. No Notazz: Relatórios > filtrar por data de criação > escolher empresa > status "autorizada" > pesquisar. Comparar o valor total com o registrado no Pagar.me (Resumo > Período > valor pago). Reportar divergências à Marcela.', empresa:'tech', role:'estagiario', rule:d=>isUtil(d)&&d.getDate()===28},
-
-  // Pontual — impostos Tech
-  {id:119,title:'Pagamento ISS próprio',               cat:'pontual',   resp:'Coordenação do Setor (Marcela)', freq:'Vence dia 8', desc:'Receber guia da contabilidade (gerada após envio das NFs no 1º dia útil). Efetuar pagamento via Banco Inter até o dia 8. Após o pagamento, registrar em Contas a Pagar no Bling com comprovante anexado.', empresa:'tech', role:'coordenacao', rule:d=>isUtil(d)&&d.getDate()===8},
-  {id:120,title:'Pagamento FGTS e INSS',               cat:'pontual',   resp:'Coordenação do Setor (Marcela)', freq:'Vence dia 19 — guia enviada pela Drielly até dia 10', desc:'A Drielly (RH) envia as guias de FGTS e INSS para Laura e Marcela até o dia 10. Efetuar pagamento via Banco Inter até o dia 19. Após o pagamento, registrar em Contas a Pagar no Bling com comprovante anexado.', empresa:'tech', role:'coordenacao', rule:d=>isUtil(d)&&d.getDate()===19},
-  {id:121,title:'Pagamento PIS e Cofins',               cat:'pontual',   resp:'Coordenação do Setor (Marcela)', freq:'Prazo até dia 25', desc:'Receber guias de PIS e Cofins da contabilidade. Efetuar pagamento via Banco Inter até o dia 25. Após o pagamento, registrar em Contas a Pagar no Bling com comprovante anexado.', empresa:'tech', role:'coordenacao', rule:d=>isUtil(d)&&d.getDate()===25},
-  {id:122,title:'Pagamento IRPJ e CSLL (trimestral)',  cat:'pontual',   resp:'Coordenação do Setor (Marcela)', freq:'Trimestral — até dia 30 do mês seguinte ao fim do trimestre', desc:'Pagamento trimestral de IRPJ e CSLL (lucro presumido). Guia recebida até o dia 30 dos meses de janeiro, abril, julho e outubro. Para esses pagamentos de valor mais alto, usar preferencialmente o Conta Simples. Registrar em Contas a Pagar no Bling após o pagamento.', empresa:'tech', role:'coordenacao', rule:d=>{const m=d.getMonth(),day=d.getDate();return isUtil(d)&&[3,6,9,0].includes(m)&&day===30}},
+/* ============ ÁREAS (nav dinâmica) — ordem definida ============ */
+const SECTIONS = [
+  {id:'visao',     label:'Visão Geral',color:'var(--c-visao)',     access:'geral'},
+  {id:'comercial', label:'Comercial',  color:'var(--c-comercial)', access:'mixed'},
+  {id:'financeiro',label:'Financeiro', color:'var(--c-financeiro)',access:'lideranca'},
+  {id:'marketing', label:'Marketing',  color:'var(--c-marketing)', access:'lideranca'},
+  {id:'produto',   label:'Produto',    color:'var(--c-produto)',   access:'mixed'},
+  {id:'escola',    label:'Escola Téc.',color:'var(--c-escola)',    access:'lideranca'},
+  {id:'suporte',   label:'Suporte',    color:'var(--c-suporte)',   access:'lideranca'},
+  {id:'dp',        label:'DP',         color:'var(--c-dp)',        access:'lideranca'},
+  {id:'admin',     label:'Admin',      color:'var(--c-admin)',     access:'lideranca'},
+  {id:'processo',  label:'Processos',  color:'var(--c-processo)',  access:'geral'},
 ];
+let currentView='lideranca';
 
-// Tarefas manuais em memória (por sessão)
-let manualTasks = [];
-let nextManualId = 1000;
-
-const TODAY=new Date(); TODAY.setHours(0,0,0,0);
-let cur=new Date(TODAY.getFullYear(),TODAY.getMonth(),1);
-let activeF=new Set(Object.keys(CATS));
-let activeR=new Set(Object.keys(ROLES));
-let activeE=new Set(Object.keys(EMPRESAS));
-
-function isUtil(d){return d.getDay()!==0&&d.getDay()!==6}
-
-function isPrimeiroDiaUtil(d){
-  const y=d.getFullYear(),m=d.getMonth();
-  for(let i=1;i<=5;i++){
-    const t=new Date(y,m,i);
-    if(isUtil(t)) return d.getDate()===i;
-  }
-  return false;
-}
-
-function getTasksFor(date){
-  const auto = TASKS.filter(t=>activeF.has(t.cat)&&activeR.has(t.role)&&activeE.has(t.empresa||'eletrica')&&t.rule(date));
-  const manual = manualTasks.filter(t=>{
-    const td=new Date(t.date+'T12:00:00');
-    return td.toDateString()===date.toDateString() && activeR.has(t.role) && activeE.has(t.empresa||'eletrica');
+/* ============ TOGGLE ============ */
+function setView(view){
+  currentView=view;
+  document.querySelectorAll('.seg button').forEach(b=>b.classList.toggle('on', b.dataset.view===view));
+  positionGlider();
+  document.querySelectorAll('[data-block]').forEach(el=>{
+    el.hidden = (view==='operacao' && el.dataset.access==='lideranca');
   });
-  return [...auto,...manual];
-}
-
-// ── Build filters ──
-function buildUI(){
-  const fe=document.getElementById('filters-emp');
-  const fc=document.getElementById('filters-cat');
-  const fr=document.getElementById('filters-role');
-
-  for(const[k,v]of Object.entries(EMPRESAS)){
-    const b=document.createElement('button');
-    b.className='filter-chip';
-    b.innerHTML=`<span class="dot" style="background:${v.dot}"></span>${v.label}`;
-    setChipStyle(b,v,true);
-    b.onclick=()=>{const on=activeE.has(k);if(on)activeE.delete(k);else activeE.add(k);setChipStyle(b,v,!on);render();renderDeadlines()};
-    fe.appendChild(b);
-  }
-
-  for(const[k,v]of Object.entries(CATS)){
-    const b=document.createElement('button');
-    b.className='filter-chip';b.dataset.key=k;b.dataset.type='cat';
-    b.innerHTML=`<span class="dot" style="background:${v.dot}"></span>${v.label}`;
-    setChipStyle(b,v,true);
-    b.onclick=()=>{const on=activeF.has(k);if(on)activeF.delete(k);else activeF.add(k);setChipStyle(b,v,!on);render()};
-    fc.appendChild(b);
-  }
-
-  for(const[k,v]of Object.entries(ROLES)){
-    const b=document.createElement('button');
-    b.className='filter-chip';b.dataset.key=k;b.dataset.type='role';
-    b.innerHTML=`<span class="dot" style="background:${v.dot}"></span>${v.label}`;
-    setChipStyle(b,v,true);
-    b.onclick=()=>{const on=activeR.has(k);if(on)activeR.delete(k);else activeR.add(k);setChipStyle(b,v,!on);render()};
-    fr.appendChild(b);
-  }
-}
-
-function setChipStyle(b,v,on){
-  b.style.background=on?v.bg:'transparent';
-  b.style.color=on?v.text:'var(--cinza-muted)';
-  b.style.borderColor=on?v.dot:'var(--cinza-borda)';
-  b.classList.toggle('off',!on);
-}
-
-// ── Search ──
-function doSearch(q){
-  const sq=q.trim().toLowerCase();
-  const clear=document.getElementById('search-clear');
-  const box=document.getElementById('search-results');
-  const body=document.getElementById('search-results-body');
-  const title=document.getElementById('search-results-title');
-  clear.classList.toggle('visible',sq.length>0);
-  if(!sq){box.classList.remove('visible');return}
-
-  const allTasks=[...TASKS,...manualTasks.map(t=>({...t,cat:'manual',role:t.role}))];
-  const results=allTasks.filter(t=>{
-    const hay=(t.title+' '+(t.desc||'')+' '+(t.resp||'')+' '+(t.freq||'')).toLowerCase();
-    return hay.includes(sq);
+  document.querySelectorAll('[data-hide-on]').forEach(el=>{ el.hidden = (el.dataset.hideOn===view); });
+  document.querySelectorAll('[data-section]').forEach(sec=>{
+    sec.hidden = (sec.querySelectorAll('[data-block]:not([hidden])').length===0);
+    sec.querySelectorAll('[data-pill]').forEach(p=>{ p.hidden = (p.dataset.pill!==view); });
   });
-
-  body.innerHTML='';
-  if(results.length===0){
-    body.innerHTML='<div style="font-size:12px;color:var(--cinza-muted);padding:4px 0">Nenhuma atividade encontrada.</div>';
-    title.textContent='Pesquisa: "'+q+'"';
-  } else {
-    title.textContent=`${results.length} atividade${results.length>1?'s':''} encontrada${results.length>1?'s':''} para "${q}"`;
-    results.forEach(t=>{
-      const isManual=t.id>=1000;
-      const v=isManual?{bg:'#fff3e0',text:'#7c3000',dot:'#E05C16',label:'Manual'}:CATS[t.cat];
-      const rv=ROLES[t.role]||ROLES.todos;
-      const ev=EMPRESAS[t.empresa||'eletrica']||EMPRESAS.eletrica;
-      const div=document.createElement('div');div.className='search-result-item';
-      div.innerHTML=`
-        <span class="sri-dot" style="background:${ev.dot}"></span>
-        <div class="sri-info">
-          <div class="sri-title">${t.title}
-            <span class="sri-badge" style="background:${ev.bg};color:${ev.text};border:1px solid ${ev.dot}">${ev.label}</span>
-            <span class="sri-badge" style="background:${v.bg};color:${v.text}">${v.label||'Manual'}</span>
-            <span class="sri-badge" style="background:${rv.bg};color:${rv.text}">${rv.label}</span>
-          </div>
-          <div class="sri-meta">${t.freq||'Data única'}${isManual&&t.date?' — '+new Date(t.date+'T12:00:00').toLocaleDateString('pt-BR'):''}</div>
-        </div>`;
-      body.appendChild(div);
-    });
+  buildNav(); updateBanner();
+}
+function positionGlider(){
+  const seg=document.getElementById('seg'), glider=document.getElementById('glider');
+  const a=seg.querySelector('button.on');
+  glider.style.width=a.offsetWidth+'px';
+  glider.style.transform=`translateX(${a.offsetLeft-4}px)`;
+  glider.style.background = currentView==='lideranca' ? 'var(--azul-claro)' : 'var(--laranja)';
+}
+function updateBanner(){
+  const b=document.getElementById('banner');
+  const vis=SECTIONS.filter(s=>{const e=document.getElementById(s.id);return e&&!e.hidden;}).length;
+  if(currentView==='lideranca'){
+    b.style.background='var(--accent-soft)'; b.style.borderColor='#C2D9EC'; b.style.color='var(--azul)';
+    b.innerHTML=`<span class="tag" style="background:var(--azul)">★ LIDERANÇAS</span> <span><b>Visão completa.</b> Todos os ${vis} setores e indicadores, incluindo os dados gerais que o time também vê.</span>`;
+    document.getElementById('foot-mode').textContent='Visão: Lideranças · 10 áreas';
+  }else{
+    b.style.background='#FBEBDF'; b.style.borderColor='#F3CFB3'; b.style.color='#B5481A';
+    b.innerHTML=`<span class="tag" style="background:var(--laranja)">◐ OPERAÇÃO</span> <span><b>Recorte do time.</b> Apenas os dados liberados para todos — ${vis} áreas visíveis. O restante fica sob consulta das lideranças.</span>`;
+    document.getElementById('foot-mode').textContent='Visão: Operação · recorte geral';
   }
-  box.classList.add('visible');
 }
-
-function clearSearch(){
-  document.getElementById('search-input').value='';
-  document.getElementById('search-clear').classList.remove('visible');
-  document.getElementById('search-results').classList.remove('visible');
+function buildNav(){
+  const nav=document.getElementById('nav'); nav.innerHTML='';
+  SECTIONS.forEach(s=>{
+    const sec=document.getElementById(s.id); if(sec&&sec.hidden) return;
+    const a=document.createElement('a'); a.href='#'+s.id; a.dataset.target=s.id;
+    a.innerHTML=`<span class="dot" style="color:${s.color}"></span>${s.label}`;
+    nav.appendChild(a);
+  });
 }
+const spy=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting){
+  document.querySelectorAll('#nav a').forEach(a=>a.classList.toggle('active',a.dataset.target===e.target.id));}});
+},{rootMargin:'-45% 0px -50% 0px'});
+document.querySelectorAll('[data-section]').forEach(s=>spy.observe(s));
 
-// ── Render ──
-function render(){
-  const y=cur.getFullYear(),m=cur.getMonth();
-  const MN=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
-  document.getElementById('month-label').textContent=`${MN[m]} ${y}`;
-  const grid=document.getElementById('grid');grid.innerHTML='';
-  const fd=new Date(y,m,1).getDay(),ld=new Date(y,m+1,0).getDate();
-
-  for(let i=0;i<fd;i++){const c=document.createElement('div');c.className='cell ghost';grid.appendChild(c)}
-  for(let d=1;d<=ld;d++){
-    const date=new Date(y,m,d),wknd=!isUtil(date),isToday=date.toDateString()===TODAY.toDateString();
-    const cell=document.createElement('div');
-    cell.className='cell'+(wknd?' weekend-cell':'')+(isToday?' today-cell':'');
-    const dn=document.createElement('div');
-    dn.className='day-num'+(isToday?' is-today':'');
-    dn.innerHTML=d+(isToday?' <span class="today-badge">hoje</span>':'');
-    cell.appendChild(dn);
-    if(!wknd){
-      const tasks=getTasksFor(date);
-      const hasManual=tasks.some(t=>t.id>=1000);
-      if(tasks.length>0){
-        cell.classList.add(hasManual&&tasks.every(t=>t.id>=1000)?'has-manual':'has-tasks');
-        const pw=document.createElement('div');pw.className='pills';
-        const show=Math.min(tasks.length,3);
-        for(let i=0;i<show;i++){
-          const t=tasks[i];
-          const isM=t.id>=1000;
-          const v=isM?{bg:'#fff3e0',text:'#7c3000'}:CATS[t.cat];
-          const ev=EMPRESAS[t.empresa||'eletrica']||EMPRESAS.eletrica;
-          const p=document.createElement('div');
-          p.className='pill'+(isM?' manual-pill':'');
-          if(!isM){p.style.background=v.bg;p.style.color=v.text;p.style.borderLeft=`3px solid ${ev.dot}`;}
-          p.textContent=t.title;pw.appendChild(p);
-        }
-        if(tasks.length>3){const ml=document.createElement('div');ml.className='more-lbl';ml.textContent=`+${tasks.length-3} tarefa${tasks.length-3>1?'s':''}`;pw.appendChild(ml)}
-        cell.appendChild(pw);cell.onclick=()=>openModal(date,tasks);
-      }else{
-        const el=document.createElement('div');el.className='empty-lbl';el.textContent='Sem tarefas';cell.appendChild(el);
-        cell.style.cursor='default';
-      }
-      // weekend cells: allow clicking to add manual task
-      if(!wknd){
-        const origClick=cell.onclick;
-        if(!origClick){
-          cell.style.cursor='default';
-        }
-      }
-    }
-    grid.appendChild(cell);
-  }
-  const total=fd+ld,rem=total%7===0?0:7-(total%7);
-  for(let i=0;i<rem;i++){const c=document.createElement('div');c.className='cell ghost';grid.appendChild(c)}
-}
-
-// ── Day modal ──
-function openModal(date,tasks){
-  const opts={weekday:'long',day:'numeric',month:'long',year:'numeric'};
-  document.getElementById('m-date').textContent=date.toLocaleDateString('pt-BR',opts);
-  document.getElementById('m-sub').textContent=`${tasks.length} tarefa${tasks.length>1?'s':''} para este dia`;
-  const body=document.getElementById('m-body');body.innerHTML='';
-
-  for(const t of tasks){
-    const isM=t.id>=1000;
-    const v=isM?{bg:'#fff3e0',text:'#7c3000',bar:'#E05C16',label:'Manual'}:CATS[t.cat];
-    const rv=ROLES[t.role]||ROLES.todos;
-    const ev=EMPRESAS[t.empresa||'eletrica']||EMPRESAS.eletrica;
-    const barColor=isM?'#E05C16':ev.bar;
-    const card=document.createElement('div');
-    card.className='task-card'+(isM?' manual-card':'');
-    card.innerHTML=`
-      <div class="task-card-header" onclick="toggleCard(this.closest('.task-card'))">
-        <div class="task-left-bar" style="background:${barColor}"></div>
-        <div class="task-title">${t.title}</div>
-        <span class="task-badge" style="background:${ev.bg};color:${ev.text};border:1px solid ${ev.dot}">${ev.label}</span>
-        <span class="task-badge" style="background:${v.bg};color:${v.text}">${v.label}</span>
-        <span class="task-chevron"><svg viewBox="0 0 16 16"><polyline points="4 6 8 10 12 6"/></svg></span>
-      </div>
-      <div class="task-card-body">
-        <div class="task-meta-row">
-          <span class="meta-chip"><svg viewBox="0 0 16 16"><circle cx="8" cy="8" r="6"/><path d="M8 5v3l2 2"/></svg>${t.freq||'Tarefa manual'}</span>
-          <span class="meta-chip" style="background:${rv.bg};border-color:${rv.dot};color:${rv.text}">
-            <svg viewBox="0 0 16 16"><path d="M8 2a4 4 0 100 8 4 4 0 000-8zM2 14c0-2.2 2.7-4 6-4s6 1.8 6 4"/></svg>
-            ${t.resp||rv.label}
-          </span>
-        </div>
-        <div class="task-desc">${t.desc||'Sem descrição.'}</div>
-        ${t.link?`<a class="process-btn" href="${t.link}" target="_blank" rel="noopener noreferrer"><svg viewBox="0 0 16 16"><path d="M10 2h4v4M14 2l-7 7M6 3H3a1 1 0 00-1 1v9a1 1 0 001 1h9a1 1 0 001-1v-3"/></svg>Ver processo completo</a>`:''}
-        ${isM?`<button class="delete-btn" onclick="deleteTask(${t.id})">Excluir esta tarefa</button>`:''}
-      </div>`;
-    body.appendChild(card);
-  }
-  document.getElementById('modal-bg').classList.add('open');
-  document.body.style.overflow='hidden';
-}
-function toggleCard(card){card.classList.toggle('expanded')}
-function closeModal(){document.getElementById('modal-bg').classList.remove('open');document.body.style.overflow=''}
-function bgClick(e){if(e.target===document.getElementById('modal-bg'))closeModal()}
-
-// ── Add task modal ──
-let addTargetDate=null;
-function openAddModal(dateStr){
-  const inp=document.getElementById('f-date');
-  if(dateStr) inp.value=dateStr;
-  else{const t=TODAY;inp.value=`${t.getFullYear()}-${String(t.getMonth()+1).padStart(2,'0')}-${String(t.getDate()).padStart(2,'0')}`}
-  document.getElementById('f-title').value='';
-  document.getElementById('f-desc').value='';
-  document.getElementById('f-role').value='coordenacao';
-  document.getElementById('add-modal-bg').classList.add('open');
-  document.body.style.overflow='hidden';
-}
-function closeAddModal(){document.getElementById('add-modal-bg').classList.remove('open');document.body.style.overflow=''}
-function addBgClick(e){if(e.target===document.getElementById('add-modal-bg'))closeAddModal()}
-
-function saveTask(){
-  const date=document.getElementById('f-date').value;
-  const title=document.getElementById('f-title').value.trim();
-  const desc=document.getElementById('f-desc').value.trim();
-  const role=document.getElementById('f-role').value;
-  const empresa=document.getElementById('f-empresa').value;
-  if(!date||!title){alert('Preencha a data e o título da tarefa.');return}
-  const rv=ROLES[role];
-  manualTasks.push({id:nextManualId++,title,desc,date,role,empresa,resp:rv.label,freq:'Tarefa manual'});
-  closeAddModal();
-  render();
-}
-
-function deleteTask(id){
-  if(!confirm('Excluir esta tarefa?')) return;
-  manualTasks=manualTasks.filter(t=>t.id!==id);
-  closeModal();
-  render();
-}
-
-// ── Deadlines panel ──────────────────────────────────
-const DEADLINES = [
-  {
-    name: 'Envio de NFs para a contabilidade',
-    resp: 'Coordenação do Setor (Eulália)',
-    icon: 'doc', empresa: 'eletrica', grupo: 'nfs-contabilidade',
-    getNext: (from) => {
-      for(let mo=0; mo<=2; mo++){
-        const y=from.getFullYear(), m=from.getMonth()+mo;
-        const d=new Date(y,m,1);
-        const dia4=new Date(d.getFullYear(),d.getMonth(),4);
-        const dow4=dia4.getDay();
-        const alvo=dow4===6||dow4===0?3:4;
-        const target=new Date(d.getFullYear(),d.getMonth(),alvo);
-        if(target>from) return target;
-      }
-    }
-  },
-  {
-    name: 'Pagamento ISS próprio',
-    resp: 'Coordenação do Setor (Eulália)',
-    icon: 'money', empresa: 'eletrica', grupo: 'iss',
-    getNext: (from) => nextDayOfMonth(from, 8)
-  },
-  {
-    name: 'Pagamento IR retido',
-    resp: 'Coordenação do Setor (Eulália)',
-    icon: 'money', empresa: 'eletrica', grupo: 'ir-retido',
-    getNext: (from) => nextDayOfMonth(from, 20)
-  },
-  {
-    name: 'Pagamento PIS, Cofins, ICMS e ISS retido',
-    resp: 'Coordenação do Setor (Eulália)',
-    icon: 'money', empresa: 'eletrica', grupo: 'pis-cofins',
-    getNext: (from) => nextDayOfMonth(from, 25)
-  },
-  {
-    name: 'Pagamento IRPJ e CSLL (trimestral)',
-    resp: 'Coordenação do Setor (Eulália)',
-    icon: 'money', empresa: 'eletrica', grupo: 'irpj',
-    getNext: (from) => {
-      const trimMonths=[3,6,9,0];
-      for(let mo=0; mo<=4; mo++){
-        const ref=new Date(from.getFullYear(), from.getMonth()+mo, 30);
-        if(trimMonths.includes(ref.getMonth()) && ref>from) return ref;
-      }
-    }
-  },
-  {
-    name: 'Saque Pagar.me',
-    resp: 'Estagiário (Alvaro)',
-    icon: 'bank', empresa: 'eletrica',
-    getNext: (from) => nextWeekday(from, 1)
-  },
-  {
-    name: 'Saque TMB — mensal',
-    resp: 'Estagiário (Alvaro)',
-    icon: 'bank', empresa: 'eletrica',
-    getNext: (from) => {
-      for(let mo=0;mo<=2;mo++){
-        const y=from.getFullYear(),m=from.getMonth()+mo;
-        for(let d=1;d<=7;d++){
-          const dt=new Date(y,m,d);
-          if(dt.getDay()===1&&dt>from) return dt;
-        }
-      }
-    }
-  },
-  {
-    name: 'Acompanhamento inadimplentes TMB',
-    resp: 'Estagiário (Alvaro)',
-    icon: 'list', empresa: 'eletrica',
-    getNext: (from) => nextWeekday(from, 1)
-  },
-  {
-    name: 'Agendamento de fornecedores',
-    resp: 'Assistente (Marcela)',
-    icon: 'pay', empresa: 'eletrica',
-    getNext: (from) => {
-      for(let i=1;i<=7;i++){
-        const d=new Date(from); d.setDate(d.getDate()+i);
-        if(d.getDay()===1||d.getDay()===4) return d;
-      }
-    }
-  },
-  {
-    name: 'Fechamento da apresentação mensal',
-    resp: 'Toda a equipe',
-    icon: 'chart', empresa: 'eletrica',
-    getNext: (from) => {
-      for(let mo=0;mo<=2;mo++){
-        const y=from.getFullYear(),m=from.getMonth()+mo;
-        for(let d=1;d<=7;d++){
-          const dt=new Date(y,m,d);
-          if(dt.getDay()===1&&dt>from) return dt;
-        }
-      }
-    }
-  },
-  // Elétrica — FGTS e INSS (novo)
-  {name:'Pagamento FGTS e INSS', resp:'Coordenação do Setor (Eulália)', icon:'money', empresa:'eletrica', grupo:'fgts',
-    getNext:(from)=>nextDayOfMonth(from,19)},
-  // Tech deadlines
-  {name:'Saque Pagar.me',                    resp:'Coordenação do Setor (Marcela)', icon:'bank',  empresa:'tech', grupo:'saque-pagarme-tech', getNext:(from)=>{for(let mo=0;mo<=2;mo++){const y=from.getFullYear(),m=from.getMonth()+mo;for(let i=1;i<=5;i++){const dt=new Date(y,m,i);if(isUtil(dt)&&dt>from)return dt;}}return null;}},
-  {name:'Envio de NFs para a contabilidade', resp:'Coordenação do Setor (Marcela)', icon:'doc',   empresa:'tech', grupo:'nfs-contabilidade', getNext:(from)=>{for(let mo=0;mo<=2;mo++){const y=from.getFullYear(),m=from.getMonth()+mo;for(let i=1;i<=5;i++){const dt=new Date(y,m,i);if(isUtil(dt)&&dt>from)return dt;}}return null;}},
-  {name:'Registro dos extratos bancários',   resp:'Coordenação do Setor (Marcela)', icon:'doc',   empresa:'tech', grupo:'extratos-tech',      getNext:(from)=>nextDayOfMonth(from,5)},
-  {name:'Pagamento ISS próprio',             resp:'Coordenação do Setor (Marcela)', icon:'money', empresa:'tech', grupo:'iss',                getNext:(from)=>nextDayOfMonth(from,8)},
-  {name:'Transferência Inter → Conta Simples',resp:'Coordenação do Setor (Marcela)',icon:'bank',  empresa:'tech', grupo:'transf-tech',        getNext:(from)=>nextDayOfMonth(from,15)},
-  {name:'Emissão NF Google Play',            resp:'Estagiário (Alvaro)',            icon:'doc',   empresa:'tech', grupo:'nf-google-tech',     getNext:(from)=>nextDayOfMonth(from,17)},
-  {name:'Pagamento FGTS e INSS',             resp:'Coordenação do Setor (Marcela)', icon:'money', empresa:'tech', grupo:'fgts',               getNext:(from)=>nextDayOfMonth(from,19)},
-  {name:'Pagamento PIS e Cofins',            resp:'Coordenação do Setor (Marcela)', icon:'money', empresa:'tech', grupo:'pis-cofins',          getNext:(from)=>nextDayOfMonth(from,25)},
-  {name:'Pagamento IRPJ e CSLL (trimestral)',resp:'Coordenação do Setor (Marcela)', icon:'money', empresa:'tech', grupo:'irpj',               getNext:(from)=>{const trimMonths=[3,6,9,0];for(let mo=0;mo<=4;mo++){const ref=new Date(from.getFullYear(),from.getMonth()+mo,30);if(trimMonths.includes(ref.getMonth())&&ref>from)return ref;}return null;}},
-  {name:'Fechamento semanal apresentação',   resp:'Estagiário (Alvaro)',            icon:'chart', empresa:'tech', grupo:'apres-semanal-tech', getNext:(from)=>nextWeekday(from,2)},
+/* ============ ANIVERSARIANTE DO DIA (somente hoje, com foto) ============ */
+const ANIVERSARIOS=[
+  {nome:'Marina Freitas', setor:'Comercial', dia:17, mes:6, cor:'#1C7A8C', foto:'https://i.pravatar.cc/150?img=47'},
+  {nome:'Rafael Lima',    setor:'Produto',   dia:21, mes:6, cor:'#5B57C2', foto:'https://i.pravatar.cc/150?img=12'},
+  {nome:'Célio Souza',    setor:'Marketing', dia:28, mes:6, cor:'#E05C16', foto:'https://i.pravatar.cc/150?img=33'},
 ];
-
-function nextDayOfMonth(from, day){
-  // This month first, then next
-  for(let mo=0; mo<=2; mo++){
-    const t=new Date(from.getFullYear(), from.getMonth()+mo, day);
-    if(t>from) return t;
-  }
-}
-
-function nextWeekday(from, dow){
-  for(let i=1;i<=7;i++){
-    const d=new Date(from); d.setDate(d.getDate()+i);
-    if(d.getDay()===dow) return d;
-  }
-}
-
-const ICONS={
-  money:'<svg viewBox="0 0 16 16"><rect x="1" y="4" width="14" height="9" rx="1.5"/><path d="M5 4V3a1 1 0 011-1h4a1 1 0 011 1v1M8 8.5a1.5 1.5 0 100-3 1.5 1.5 0 000 3z"/></svg>',
-  doc:  '<svg viewBox="0 0 16 16"><path d="M9 1H4a1 1 0 00-1 1v12a1 1 0 001 1h8a1 1 0 001-1V5L9 1z"/><polyline points="9 1 9 5 13 5"/><line x1="5" y1="9" x2="11" y2="9"/><line x1="5" y1="12" x2="8" y2="12"/></svg>',
-  bank: '<svg viewBox="0 0 16 16"><path d="M2 6h12M2 10h12M4 6V4a4 4 0 018 0v2M3 10v3m4-3v3m4-3v3"/></svg>',
-  list: '<svg viewBox="0 0 16 16"><line x1="4" y1="4" x2="12" y2="4"/><line x1="4" y1="8" x2="12" y2="8"/><line x1="4" y1="12" x2="9" y2="12"/><circle cx="2" cy="4" r=".8" fill="currentColor"/><circle cx="2" cy="8" r=".8" fill="currentColor"/><circle cx="2" cy="12" r=".8" fill="currentColor"/></svg>',
-  pay:  '<svg viewBox="0 0 16 16"><path d="M13 3H3a1 1 0 00-1 1v8a1 1 0 001 1h10a1 1 0 001-1V4a1 1 0 00-1-1z"/><path d="M1 6h14"/><path d="M5 10h2"/></svg>',
-  chart:'<svg viewBox="0 0 16 16"><polyline points="1 11 5 7 8 9 12 4 15 6"/><line x1="1" y1="14" x2="15" y2="14"/></svg>',
-};
-
-function renderDeadlines(){
-  const panel=document.getElementById('deadlines-panel');
-  const ref=new Date(TODAY);
-  const raw=[];
-
-  DEADLINES.forEach(dl=>{
-    if(!activeE.has(dl.empresa||'eletrica')) return;
-    const next=dl.getNext(ref);
-    if(!next) return;
-    const diff=Math.round((next-ref)/(1000*60*60*24));
-    raw.push({...dl, next, diff});
-  });
-
-  // Merge items with same grupo that fall on the same date
-  const merged=[];
-  const seen={};
-  raw.forEach(item=>{
-    const key=item.grupo&&item.grupo+':'+item.diff;
-    if(item.grupo&&seen[key]){
-      // Add this empresa to the existing merged card
-      seen[key].empresas.push(item.empresa);
-      // Combine resp
-      seen[key].respCombined=(seen[key].respCombined||seen[key].resp)+' / '+item.resp;
-    } else {
-      const entry={...item, empresas:[item.empresa], respCombined:item.resp};
-      merged.push(entry);
-      if(item.grupo) seen[key]=entry;
-    }
-  });
-
-  merged.sort((a,b)=>a.diff-b.diff);
-  panel.innerHTML='';
-
-  if(merged.length===0){
-    panel.innerHTML='<div style="font-size:13px;color:var(--cinza-muted);padding:8px 0">Nenhum vencimento para as empresas selecionadas.</div>';
+function renderBday(){
+  const hoje=new Date(), d=hoje.getDate(), m=hoje.getMonth()+1;
+  const lista=ANIVERSARIOS.filter(p=>p.dia===d && p.mes===m);
+  const box=document.getElementById('bday-today');
+  if(lista.length===0){
+    box.innerHTML=`<div class="bday-empty">Ninguém faz aniversário hoje 🎉<br><span style="font-size:11px">Quando houver, aparece aqui com a foto.</span></div>`;
     return;
   }
-
-  merged.forEach(item=>{
-    const {name,icon,next,diff,empresas,respCombined}=item;
-    const urgencia=diff<=7?'urgente':diff<=15?'proximo':diff<=30?'ok':'neutro';
-    const tagLabel=diff===0?'Hoje!':diff<=7?'Urgente':diff<=15?'Em breve':diff<=30?'Este mês':'Próximos meses';
-    const dateStr=next.toLocaleDateString('pt-BR',{weekday:'short',day:'numeric',month:'short',year:'numeric'});
-
-    // Build empresa badges
-    const badgesHTML=empresas.map(emp=>{
-      const ev=EMPRESAS[emp]||EMPRESAS.eletrica;
-      return `<span style="font-size:9px;font-weight:700;padding:1px 7px;border-radius:10px;background:${ev.bg};color:${ev.text};border:1px solid ${ev.dot};text-transform:uppercase;letter-spacing:.04em">${ev.label}</span>`;
-    }).join('');
-
-    // Border color: if both companies, use gradient-like double border (show first empresa color)
-    const borderColor=empresas.length>1?'var(--text-dark)':EMPRESAS[empresas[0]].bar;
-
-    const card=document.createElement('div');
-    card.className=`dc ${urgencia}`;
-    card.style.borderLeftColor=borderColor;
-    card.style.borderLeftWidth=empresas.length>1?'5px':'4px';
-    card.innerHTML=`
-      <div class="dc-icon">${ICONS[icon]||ICONS.doc}</div>
-      <div class="dc-body">
-        <div class="dc-tag" style="display:flex;align-items:center;gap:5px;flex-wrap:wrap;">
-          <span>${tagLabel}</span>
-          ${badgesHTML}
-        </div>
-        <div class="dc-name">${name}</div>
-        <div class="dc-date">${dateStr}</div>
-        <div class="dc-resp">${respCombined}</div>
-      </div>
-      <div class="dc-right">
-        <div class="dc-days-num">${diff}</div>
-        <div class="dc-days-lbl">dias</div>
-      </div>`;
-    panel.appendChild(card);
-  });
+  box.innerHTML=lista.map(p=>{
+    const ini=p.nome.split(' ').map(x=>x[0]).slice(0,2).join('');
+    return `<div class="bday-today">
+      <img class="bday-photo" src="${p.foto}" alt="${p.nome}"
+           onerror="this.style.display='none';this.nextElementSibling.style.display='grid'">
+      <div class="bday-photo-fallback" style="background:${p.cor}">${ini}</div>
+      <div class="bday-info"><div class="bn">${p.nome}</div><div class="br">${p.setor}</div>
+        <div class="bt">🎉 Parabéns! Hoje é o dia</div></div>
+    </div>`;
+  }).join('');
 }
 
-// ── Nav ──
-function changeMonth(dir){cur=new Date(cur.getFullYear(),cur.getMonth()+dir,1);render()}
-function goToday(){cur=new Date(TODAY.getFullYear(),TODAY.getMonth(),1);render()}
+/* ============ GRÁFICOS ============ */
+Chart.defaults.font.family="Poppins, sans-serif";
+Chart.defaults.color="#647184";
+Chart.defaults.plugins.legend.labels.boxWidth=10;
+Chart.defaults.plugins.legend.labels.boxHeight=10;
+Chart.defaults.plugins.legend.labels.usePointStyle=true;
+const meses=['Jan','Fev','Mar','Abr','Mai','Jun'];
+const grid={color:'#EDF1F5',drawBorder:false};
+const noGrid={grid:{display:false}};
+const C={azul:'#004F92',azulC:'#0079D2',azulP:'#90B6D1',laranja:'#E05C16',laranjaV:'#FA9E00',verde:'#2E7D52',roxo:'#5B57C2'};
 
-buildUI();
-render();
-renderDeadlines();
+const charts={};
+function clickOpts(key){
+  return {
+    onClick:(e,els,ch)=>{
+      if(!els.length) return;
+      const el=els[0];
+      const label = ch.data.datasets.length>1 ? ch.data.datasets[el.datasetIndex].label : ch.data.labels[el.index];
+      openDrill(key,label);
+    },
+    onHover:(e,els)=>{ e.native.target.style.cursor = els.length ? 'pointer' : 'default'; }
+  };
+}
+function mk(id,key,cfg){
+  const el=document.getElementById(id); if(!el) return;
+  const co=clickOpts(key);
+  cfg.options=Object.assign({maintainAspectRatio:false},cfg.options||{});
+  cfg.options.onClick=co.onClick; cfg.options.onHover=co.onHover;
+  charts[id]=new Chart(el,cfg);
+}
+
+mk('ch_fluxo','fluxo',{type:'line',data:{labels:meses,datasets:[
+  {label:'Entradas',data:[820,910,880,1020,1140,1180],borderColor:C.verde,backgroundColor:'rgba(46,125,82,.08)',fill:true,tension:.4,pointRadius:3,pointHoverRadius:6,borderWidth:3},
+  {label:'Saídas',data:[640,700,720,810,890,968],borderColor:C.laranja,tension:.4,pointRadius:3,pointHoverRadius:6,borderWidth:3},
+  {label:'Saldo',data:[180,210,160,210,250,286],borderColor:C.azul,tension:.4,pointRadius:3,pointHoverRadius:6,borderWidth:2,borderDash:[5,4]}
+]},options:{plugins:{legend:{position:'bottom'}},scales:{y:{grid},x:noGrid}}});
+
+mk('ch_despesas','despesas',{type:'doughnut',data:{labels:['Fixas','Variáveis'],datasets:[{data:[631,337],backgroundColor:[C.azul,C.laranja],borderWidth:0}]},options:{cutout:'68%',plugins:{legend:{position:'bottom'}}}});
+
+mk('ch_pjpf','pjpf',{type:'bar',data:{labels:meses,datasets:[
+  {label:'PJ',data:[720,810,760,880,920,980],backgroundColor:C.azul,borderRadius:6},
+  {label:'PF',data:[300,340,360,400,420,442],backgroundColor:C.azulP,borderRadius:6}
+]},options:{plugins:{legend:{position:'bottom'}},scales:{y:{grid},x:noGrid}}});
+
+mk('ch_origem','origem',{type:'doughnut',data:{labels:['Google Ads','Meta Ads','Orgânico','Indicação'],datasets:[{data:[42,28,18,12],backgroundColor:[C.azul,C.azulC,C.laranjaV,C.verde],borderWidth:0}]},options:{cutout:'62%',plugins:{legend:{position:'bottom'}}}});
+
+mk('ch_meta','meta',{type:'bar',data:{labels:['Abr','Mai','Jun'],datasets:[
+  {label:'Marina',data:[28,31,34],backgroundColor:C.azul,borderRadius:5},
+  {label:'Júlia',data:[24,26,27],backgroundColor:C.azulC,borderRadius:5},
+  {label:'Beatriz',data:[20,22,23],backgroundColor:C.laranjaV,borderRadius:5}
+]},options:{plugins:{legend:{position:'bottom'}},scales:{y:{grid,title:{display:true,text:'vendas'}},x:noGrid}}});
+
+mk('ch_canal','canal',{type:'bar',data:{labels:['Google','Meta','Orgânico','E-mail','Indicação','WhatsApp'],datasets:[
+  {label:'Leads',data:[1280,940,610,330,290,290],backgroundColor:[C.laranja,C.laranjaV,'#F2A766','#F6C79E','#F9DAC1','#FBE6DA'],borderRadius:6}
+]},options:{indexAxis:'y',plugins:{legend:{display:false}},scales:{x:{grid},y:noGrid}}});
+
+mk('ch_escola','escola',{type:'line',data:{labels:meses,datasets:[
+  {label:'Entradas',data:[420,470,450,520,580,612],borderColor:C.escola||'#C24E7A',backgroundColor:'rgba(194,78,122,.1)',fill:true,tension:.4,pointRadius:3,pointHoverRadius:6,borderWidth:3},
+  {label:'Saídas',data:[360,390,400,420,440,451],borderColor:C.laranja,tension:.4,pointRadius:3,pointHoverRadius:6,borderWidth:3}
+]},options:{plugins:{legend:{position:'bottom'}},scales:{y:{grid},x:noGrid}}});
+
+mk('ch_suporte','suporte',{type:'line',data:{labels:['Sem 1','Sem 2','Sem 3','Sem 4'],datasets:[
+  {label:'Abertos',data:[52,48,41,43],borderColor:C.azulC,backgroundColor:'rgba(0,121,210,.1)',fill:true,tension:.4,pointRadius:3,pointHoverRadius:6,borderWidth:3},
+  {label:'Resolvidos',data:[44,50,46,48],borderColor:C.verde,tension:.4,pointRadius:3,pointHoverRadius:6,borderWidth:3}
+]},options:{plugins:{legend:{position:'bottom'}},scales:{y:{grid},x:noGrid}}});
+
+mk('ch_folha','folha',{type:'bar',data:{labels:['Comercial','Produto','DP/Admin','Suporte','Marketing','Escola'],datasets:[
+  {label:'R$ mil',data:[142,98,76,64,52,80],backgroundColor:C.azul,borderRadius:6}
+]},options:{plugins:{legend:{display:false}},scales:{y:{grid},x:noGrid}}});
+
+/* ============ DRILL-DOWN: dados (vals = [Abr, Mai, Jun]) ============ */
+const DRILL_TITLES={fluxo:'Fluxo de caixa',despesas:'Despesas',pjpf:'Faturamento',origem:'Origem das conversões',meta:'Vendas por vendedora',canal:'Leads por canal',escola:'Fluxo de caixa — Escola',suporte:'Chamados',folha:'Folha por setor'};
+const DRILL={
+  despesas:{
+    'Fixas':{unit:'R$ mil',items:[
+      {name:'Folha (CLT)',vals:[298,310,322]},{name:'Pró-labore',vals:[90,90,90]},
+      {name:'Aluguel + condomínio',vals:[56,57,58]},{name:'Softwares & licenças',vals:[40,44,47]},
+      {name:'Manutenção predial',vals:[42,45,48]},{name:'Energia & utilities',vals:[28,30,31]},
+      {name:'Internet & telefonia',vals:[13,13,14]},{name:'Contabilidade',vals:[12,12,12]},{name:'Seguros',vals:[9,9,9]}]},
+    'Variáveis':{unit:'R$ mil',items:[
+      {name:'Tráfego pago (mídia)',vals:[120,135,148]},{name:'Comissões de vendas',vals:[78,82,86]},
+      {name:'Contratação de serviços',vals:[30,28,34]},{name:'Ferramentas por uso (Bolt)',vals:[22,24,26]},
+      {name:'Material didático',vals:[18,19,21]},{name:'Viagens & deslocamento',vals:[9,11,12]},
+      {name:'Taxas de cartão',vals:[9,10,10]}]}
+  },
+  fluxo:{
+    'Entradas':{unit:'R$ mil',items:[{name:'Vendas PJ',vals:[780,860,920]},{name:'Vendas PF',vals:[360,400,440]},{name:'Outras receitas',vals:[40,50,60]}]},
+    'Saídas':{unit:'R$ mil',items:[{name:'Despesas fixas',vals:[600,615,631]},{name:'Despesas variáveis',vals:[290,310,337]}]},
+    'Saldo':{unit:'R$ mil',items:[{name:'Saldo do mês',vals:[210,250,286]}]}
+  },
+  pjpf:{
+    'PJ':{unit:'R$ mil',items:[{name:'NR-10',vals:[310,330,360]},{name:'NR-35',vals:[240,250,270]},{name:'NR-33',vals:[180,190,200]},{name:'Outros cursos',vals:[150,150,150]}]},
+    'PF':{unit:'R$ mil',items:[{name:'Excel',vals:[120,130,142]},{name:'Power BI',vals:[90,100,110]},{name:'Gestão',vals:[80,85,90]},{name:'Outros',vals:[110,105,100]}]}
+  },
+  origem:{
+    'Google Ads':{unit:'leads',items:[{name:'Pesquisa',vals:[620,700,790]},{name:'Display',vals:[200,240,280]},{name:'YouTube',vals:[160,180,210]}]},
+    'Meta Ads':{unit:'leads',items:[{name:'Instagram',vals:[430,490,540]},{name:'Facebook',vals:[290,350,400]}]},
+    'Orgânico':{unit:'leads',items:[{name:'Blog/SEO',vals:[300,330,360]},{name:'Redes sociais',vals:[210,230,250]}]},
+    'Indicação':{unit:'leads',items:[{name:'Aluno indica',vals:[160,180,200]},{name:'Parceiros',vals:[80,85,90]}]}
+  },
+  meta:{
+    'Marina':{unit:'vendas',items:[{name:'PJ',vals:[18,20,22]},{name:'PF',vals:[10,11,12]}]},
+    'Júlia':{unit:'vendas',items:[{name:'PJ',vals:[15,16,17]},{name:'PF',vals:[9,10,10]}]},
+    'Beatriz':{unit:'vendas',items:[{name:'PJ',vals:[12,14,14]},{name:'PF',vals:[8,8,9]}]}
+  },
+  canal:{
+    'Google':{unit:'leads',items:[{name:'Pesquisa',vals:[700,760,820]},{name:'Display',vals:[230,250,270]},{name:'YouTube',vals:[120,170,190]}]},
+    'Meta':{unit:'leads',items:[{name:'Instagram',vals:[450,500,540]},{name:'Facebook',vals:[370,390,400]}]},
+    'Orgânico':{unit:'leads',items:[{name:'SEO',vals:[320,350,370]},{name:'Social',vals:[220,230,240]}]},
+    'E-mail':{unit:'leads',items:[{name:'Newsletter',vals:[180,200,210]},{name:'Automação',vals:[110,110,120]}]},
+    'Indicação':{unit:'leads',items:[{name:'Aluno indica',vals:[160,170,180]},{name:'Parceiros',vals:[90,100,110]}]},
+    'WhatsApp':{unit:'leads',items:[{name:'Entradas diretas',vals:[170,180,190]},{name:'Campanhas',vals:[90,95,100]}]}
+  },
+  escola:{
+    'Entradas':{unit:'R$ mil',items:[{name:'Cursos técnicos',vals:[380,420,460]},{name:'Matrículas novas',vals:[70,90,110]},{name:'Outros',vals:[30,40,42]}]},
+    'Saídas':{unit:'R$ mil',items:[{name:'Folha',vals:[240,250,260]},{name:'Estrutura',vals:[120,130,135]},{name:'Materiais',vals:[40,50,56]}]}
+  },
+  suporte:{
+    'Abertos':{unit:'chamados',items:[{name:'Acesso/login',vals:[22,20,18]},{name:'Conteúdo/vídeo',vals:[16,15,14]},{name:'Pagamento',vals:[12,10,9]},{name:'Certificado',vals:[8,7,7]}]},
+    'Resolvidos':{unit:'chamados',items:[{name:'Acesso/login',vals:[20,21,19]},{name:'Conteúdo/vídeo',vals:[14,16,15]},{name:'Pagamento',vals:[10,11,10]},{name:'Certificado',vals:[7,8,8]}]}
+  },
+  folha:{
+    'Comercial':{unit:'R$ mil',items:[{name:'Salários',vals:[92,96,98]},{name:'Encargos',vals:[28,29,30]},{name:'Benefícios',vals:[12,13,14]}]},
+    'Produto':{unit:'R$ mil',items:[{name:'Salários',vals:[64,66,68]},{name:'Encargos',vals:[20,20,21]},{name:'Benefícios',vals:[8,9,9]}]},
+    'DP/Admin':{unit:'R$ mil',items:[{name:'Salários',vals:[50,52,53]},{name:'Encargos',vals:[15,15,16]},{name:'Benefícios',vals:[7,7,7]}]},
+    'Suporte':{unit:'R$ mil',items:[{name:'Salários',vals:[42,44,45]},{name:'Encargos',vals:[13,13,13]},{name:'Benefícios',vals:[6,6,6]}]},
+    'Marketing':{unit:'R$ mil',items:[{name:'Salários',vals:[34,36,37]},{name:'Encargos',vals:[10,10,11]},{name:'Benefícios',vals:[4,4,4]}]},
+    'Escola':{unit:'R$ mil',items:[{name:'Salários',vals:[54,56,57]},{name:'Encargos',vals:[16,16,17]},{name:'Benefícios',vals:[6,6,6]}]}
+  }
+};
+
+let modalChart=null;
+const fmt=n=> n>=1000 ? n.toLocaleString('pt-BR') : (''+n);
+function openDrill(key,label){
+  const d=(DRILL[key]||{})[label];
+  if(!d){ return; }
+  const driMeses=['Abr','Mai','Jun'];
+  document.getElementById('m-eyebrow').textContent=(DRILL_TITLES[key]||'Detalhamento').toUpperCase();
+  document.getElementById('m-title').textContent=label;
+  document.getElementById('m-sub').textContent=`Detalhamento por item · comparativo dos últimos 3 meses · ${d.unit}`;
+
+  const totAtual=d.items.reduce((s,i)=>s+i.vals[2],0);
+  const totPrev=d.items.reduce((s,i)=>s+i.vals[1],0);
+  const dt=((totAtual-totPrev)/totPrev*100);
+  document.getElementById('m-total').innerHTML=
+    `<span>Total em Jun</span><span><b>${fmt(totAtual)}</b> <span class="${dt>=0?'var-up':'var-down'}">${dt>=0?'▲':'▼'} ${Math.abs(dt).toFixed(1)}%</span> <span style="color:var(--muted)">vs. Mai</span></span>`;
+
+  // tabela
+  let rows=`<thead><tr><th>Item</th><th class="num">Abr</th><th class="num">Mai</th><th class="num">Jun</th><th class="num">Δ vs Mai</th></tr></thead><tbody>`;
+  d.items.forEach(i=>{
+    const v=((i.vals[2]-i.vals[1])/i.vals[1]*100);
+    const cls=v>=0?'var-up':'var-down', arr=v>=0?'▲':'▼';
+    rows+=`<tr><td><b>${i.name}</b></td><td class="num">${fmt(i.vals[0])}</td><td class="num">${fmt(i.vals[1])}</td><td class="num">${fmt(i.vals[2])}</td><td class="num ${cls}">${arr} ${Math.abs(v).toFixed(1)}%</td></tr>`;
+  });
+  rows+='</tbody>';
+  document.getElementById('m-table').innerHTML=rows;
+
+  // gráfico comparativo (itens × 3 meses)
+  if(modalChart) modalChart.destroy();
+  modalChart=new Chart(document.getElementById('m-chart'),{
+    type:'bar',
+    data:{labels:d.items.map(i=>i.name),datasets:[
+      {label:'Abr',data:d.items.map(i=>i.vals[0]),backgroundColor:'#90B6D1',borderRadius:4},
+      {label:'Mai',data:d.items.map(i=>i.vals[1]),backgroundColor:'#0079D2',borderRadius:4},
+      {label:'Jun',data:d.items.map(i=>i.vals[2]),backgroundColor:'#E05C16',borderRadius:4}
+    ]},
+    options:{maintainAspectRatio:false,plugins:{legend:{position:'bottom'}},scales:{y:{grid},x:{grid:{display:false},ticks:{maxRotation:35,minRotation:0,font:{size:10}}}}}
+  });
+
+  document.getElementById('modalbg').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+function closeModal(){document.getElementById('modalbg').classList.remove('open');document.body.style.overflow='';if(modalChart){modalChart.destroy();modalChart=null;}}
+function bgClose(e){if(e.target===document.getElementById('modalbg'))closeModal();}
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal();});
+
+/* ============ INIT ============ */
+renderBday(); buildNav(); updateBanner();
+window.addEventListener('load',positionGlider);
+window.addEventListener('resize',positionGlider);
+setTimeout(positionGlider,100);
 </script>
 </body>
 </html>
